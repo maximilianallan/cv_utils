@@ -171,7 +171,9 @@ class PosePlotter:
         
         self.plotting_2dpose = True
         self.setup_plot2d(**kwargs)
-        subplot_x.set_title(self.title2d)
+        subplot_x.set_title("x position")
+        subplot_y.set_title("y position")
+        subplot_z.set_title("z position")
         #subplot.set_xlim(self.xrange2d)
         #subplot.set_ylim(self.yrange2d)
         subplot_x.set_xlabel(self.xlabel2d)
@@ -183,10 +185,10 @@ class PosePlotter:
 
         self.line2d_xdata_estimated, = subplot_x.plot([],[],label="estimated (x)",color="red")
         self.line2d_xdata_groundtruth, = subplot_x.plot([],[],label="ground truth (x)",color="blue")
-        self.line2d_ydata_estimated, = subplot_y.plot([],[],label="estimated (y)",color="green")
-        self.line2d_ydata_groundtruth, = subplot_y.plot([],[],label="ground truth (y)",color="black")
-        self.line2d_zdata_estimated, = subplot_z.plot([],[],label="estimated (z)",color="pink")
-        self.line2d_zdata_groundtruth, = subplot_z.plot([],[],label="ground truth (z)",color="yellow")
+        self.line2d_ydata_estimated, = subplot_y.plot([],[],label="estimated (y)",color="red")
+        self.line2d_ydata_groundtruth, = subplot_y.plot([],[],label="ground truth (y)",color="blue")
+        self.line2d_zdata_estimated, = subplot_z.plot([],[],label="estimated (z)",color="red")
+        self.line2d_zdata_groundtruth, = subplot_z.plot([],[],label="ground truth (z)",color="blue")
         subplot_x.legend(loc="upper right")        
         subplot_y.legend(loc="upper right")        
         subplot_z.legend(loc="upper right")        
@@ -217,19 +219,17 @@ class PosePlotter:
         #plt.legend(loc='upper right')
         """
         fig = plt.figure(figsize=(25,12))
-        video_plot = plt.subplot2grid( (4,4),(0,0),colspan=2,rowspan=1 )
-        tracking_plot=plt.subplot2grid( (4,4),(0,2),colspan=2,rowspan=1 )
-        plot_2d_x = plt.subplot2grid( (4,4), (1,0),colspan=2,rowspan=1 )
-        plot_2d_y = plt.subplot2grid( (4,4), (2,0),colspan=2,rowspan=1 )
-        plot_2d_z = plt.subplot2grid( (4,4), (3,0),colspan=2,rowspan=1 )
-        plot_2d_err = plt.subplot2grid( (4,4), (2,2),colspan=2,rowspan=3)
+        video_plot = plt.subplot2grid( (3,4),(0,0),colspan=2,rowspan=1 )
+        tracking_plot=plt.subplot2grid( (3,4),(0,2),colspan=2,rowspan=1 )
+        plot_2d_x = plt.subplot2grid( (3,4), (1,0),colspan=2,rowspan=1 )
+        plot_2d_y = plt.subplot2grid( (3,4), (2,0),colspan=2,rowspan=1 )
+        plot_2d_z = plt.subplot2grid( (3,4), (1,2),colspan=2,rowspan=1 )
+        plot_2d_err = plt.subplot2grid( (3,4), (2,2),colspan=2,rowspan=1)
         
         self.video_capture = self.initialize_video(self.video_file,video_plot,"Raw Data")
         self.tracking_capture = self.initialize_video(self.tracking_file,tracking_plot,"Tracking")
         #self.initialize_3d(plot_3d)
-        self.initialize_2d(plot_2d_x)
-        self.initialize_2d(plot_2d_y)
-        self.initialize_2d(plot_2d_z)
+        self.initialize_2d(plot_2d_x,plot_2d_y,plot_2d_z)
         self.initialize_error(plot_2d_err,title2d="Pose Errors",ylabel2d="Error (mm)")
         
         def init():
@@ -274,30 +274,30 @@ class PosePlotter:
             x_vals = np.linspace(0,i-1,i)
             if self.plotting_2dpose:
 
-                self.line2d_xdata_estimated, = plot_2d.plot(x_vals,
-                                                            self.estimated_pose_data[0:i,0],
-                                                            label="estimated",
-                                                            color="red")
-                self.line2d_xdata_groundtruth, = plot_2d.plot(x_vals,
-                                                              self.ground_truth_data[0:i,0],
-                                                              label='ground truth',
-                                                              color='blue')
-                self.line2d_ydata_estimated, = plot_2d.plot(x_vals,
-                                                            self.estimated_pose_data[0:i,1],
-                                                            label="estimated",
-                                                            color="green")
-                self.line2d_ydata_groundtruth, = plot_2d.plot(x_vals,
-                                                              self.ground_truth_data[0:i,1],
-                                                              label='ground truth',
-                                                              color='black')
-                self.line2d_zdata_estimated, = plot_2d.plot(x_vals,
-                                                            self.estimated_pose_data[0:i,2],
-                                                            label="estimated",
-                                                            color="pink")
-                self.line2d_zdata_groundtruth, = plot_2d.plot(x_vals,
-                                                              self.ground_truth_data[0:i,2],
-                                                              label='ground truth',
-                                                              color='yellow')
+                self.line2d_xdata_estimated, = plot_2d_x.plot(x_vals,
+                                                              self.estimated_pose_data[0:i,0],
+                                                              label="estimated",
+                                                              color="red")
+                self.line2d_xdata_groundtruth, = plot_2d_x.plot(x_vals,
+                                                                self.ground_truth_data[0:i,0],
+                                                                label='ground truth',
+                                                                color='blue')
+                self.line2d_ydata_estimated, = plot_2d_y.plot(x_vals,
+                                                              self.estimated_pose_data[0:i,1],
+                                                              label="estimated",
+                                                              color="red")
+                self.line2d_ydata_groundtruth, = plot_2d_y.plot(x_vals,
+                                                                self.ground_truth_data[0:i,1],
+                                                                label='ground truth',
+                                                                color='blue')
+                self.line2d_zdata_estimated, = plot_2d_z.plot(x_vals,
+                                                              self.estimated_pose_data[0:i,2],
+                                                              label="estimated",
+                                                              color="red")
+                self.line2d_zdata_groundtruth, = plot_2d_z.plot(x_vals,
+                                                                self.ground_truth_data[0:i,2],
+                                                                label='ground truth',
+                                                                color='blue')
                 rets.append(self.line2d_xdata_estimated)
                 rets.append(self.line2d_xdata_groundtruth)
                 rets.append(self.line2d_ydata_estimated)
@@ -326,9 +326,9 @@ class PosePlotter:
             os.mkdir("output")
         except:
             pass
-        #ani.save('./output/pose2d2d_nwq.avi',fps=10,clear_temp=False)
+        ani.save('./output/pose2d_sep.avi',fps=10,clear_temp=False)
             
-        plt.show()
+        #plt.show()
             
     
 
@@ -336,7 +336,7 @@ if __name__ == '__main__':
 
     #pose_plotter = PosePlotter("pose_2.csv","optotrak_pose.csv")
     #pose_plotter = PosePlotter("pose_2.csv","pose_1.csv")
-    pose_plotter = PosePlotter("estimated_results.csv","ground_truth_results.csv","video.avi","tracking.avi",15)
+    pose_plotter = PosePlotter("estimated_results.csv","ground_truth_results.csv","video.avi","tracking.avi",400)
     
     pose_plotter.visualize_translations()
 
