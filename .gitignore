@@ -1,3 +1,16 @@
+old/*
+old
+im2rgb3d/*
+im2rgb3d
+*.pyc
+*.png
+*.jpg
+*.avi
+*.mp4
+*.csv
+
+
+
 #################
 ## Eclipse
 #################
