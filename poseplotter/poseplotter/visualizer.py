@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>."""
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
+import matplotlib
 import numpy as np
 import sys
 
@@ -28,29 +29,34 @@ class Visualizer(object):
 
     def __init__(self,layout):
 
-      self.figure = plt.figure(figsize=(25,12))
+      matplotlib.rcParams.update({'font.family': 'serif'})
+      self.figure = plt.figure(figsize=(25,12),facecolor='white')
       self.artists = []
       self.layout = layout
                           
-    def add_3dplot(self, estimated_pose_data, ground_truth_pose_data, position, rowspan, colspan):
+    def add_3dplot(self, estimated_pose_data, ground_truth_pose_data, position, rowspan, colspan, **kwargs):
       
       subplot = plt.subplot2grid(self.layout,position, rowspan, colspan,projection='3d')
       self.artists.append( PosePlotter3D(estimated_pose_data,ground_truth_pose_data, subplot) )
-  
-    def add_2dplot(self, estimated_pose_data, ground_truth_pose_data, position, rowspan, colspan):
+      self.artists[-1].setup(**kwargs)
+      
+    def add_2dplot(self, estimated_pose_data, ground_truth_pose_data, position, rowspan, colspan, **kwargs):
       
       subplot = plt.subplot2grid(self.layout,position, rowspan, colspan)
       self.artists.append( PosePlotter2D(estimated_pose_data,ground_truth_pose_data, subplot) )
-    
-    def add_video(self, videofile, position, rowspan, colspan):
+      self.artists[-1].setup(**kwargs)
+      
+    def add_video(self, videofile, position, rowspan, colspan, **kwargs):
     
       subplot = plt.subplot2grid(self.layout,position, rowspan, colspan)
       self.artists.append( ImagePlotter( videofile, subplot) )
-    
+      self.artists[-1].setup(**kwargs)
+      
     def init_plot(self):
     
-      for artist in self.artists:
-        artist.setup()
+      return
+      #for artist in self.artists:
+      #  artist.setup()
       
     def animate_plot(self,i):
     
@@ -62,7 +68,7 @@ class Visualizer(object):
     
       ani = animation.FuncAnimation(self.figure, self.animate_plot, init_func = self.init_plot, frames = 100)
       plt.show()          
-
+      #ani.save('./output/pose2d_sep.avi',fps=10,clear_temp=False)
 
 
             

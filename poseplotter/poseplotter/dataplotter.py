@@ -52,8 +52,8 @@ class PosePlotter3D(DataPlotter):
 
   def __init__(self,estimated_pose_data,ground_truth_data,subplot):
     super(PosePlotter3D,self).__init__(subplot)
-    self.estimated_pose_data = self.parse_pose_file(estimated_pose_data)
-    self.ground_truth_data = self.parse_pose_file(ground_truth_data)
+    self.estimated_pose_data = self.parse_pose_file(estimated_pose_data,True)
+    self.ground_truth_data = self.parse_pose_file(ground_truth_data,True)
     
   def parse_pose_file(self,pose_file,normalize=False,med_filt=False,kernel_width=5):
     """Load in the pose data from the input files. Optionally clean the data up with a 1D 
@@ -122,8 +122,8 @@ class PosePlotter3D(DataPlotter):
   
     rotation,jacs = cv2.Rodrigues( dataset[i,3:6] )
 
-    start = np.dot(rotation,np.asarray([-20,0,0])) + dataset[i,0:3]
-    end = np.dot(rotation,np.asarray([20,0,0])) + dataset[i,0:3]
+    start = np.dot(rotation,np.asarray([-15,0,0])) + dataset[i,0:3]
+    end = np.dot(rotation,np.asarray([15,0,0])) + dataset[i,0:3]
 
     top = np.dot(rotation,np.asarray([0,5,0])) + dataset[i,0:3]
     bottom = np.dot(rotation,np.asarray([0,-5,0])) + dataset[i,0:3]
@@ -222,10 +222,14 @@ class ImagePlotter(DataPlotter):
     
     self.subplot.axes.get_xaxis().set_visible(False)
     self.subplot.axes.get_yaxis().set_visible(False)
+    self.subplot.set_title(self.title)
+    self.refresh_plot()
     
   def refresh_plot(self):
-    pass
-    
+    return    
     
   def plot(self,i):
-    self.subplot.imshow( cv2.cvtColor(self.capture.read()[1],cv2.cv.CV_BGR2RGB) )
+    im = self.capture.read()[1]
+    resiz = np.ndarray( shape=(640,480,3), dtype=np.uint8 )
+    resiz = cv2.resize(im,resiz.shape[0:2])
+    self.subplot.imshow(cv2.cvtColor(resiz,cv2.cv.CV_BGR2RGB) )
