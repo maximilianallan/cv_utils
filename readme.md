@@ -28,7 +28,8 @@ Code for overlaying a model on a video feed given pose parameters and a camera
 calibration file.
 
 Usage:
-        $python overlay --video SOMEFILE.avi --pose POSES.csv --calib CALIB.xml [--stereo]
+        
+          $python -m cv_utils.overlay --video SOMEFILE.avi --pose POSES.csv --calib CALIB.xml [--stereo]
 
 * The camera calibration file should be in the OpenCV XML format.
 * The poses should be one for each frame on a new line in the format tx,ty,tz,r1,r2,r3 where the rotations are obtained from Rodrigues rotation forumla. Units are mm and radians.
