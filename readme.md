@@ -4,7 +4,7 @@ A suite of computer vision utilities
 About
 -----
 
-A selection of useful utilities for general computer vision tasks written in Python. 
+A package of useful utilities for general computer vision tasks written in Python. 
 
 Dependencies
 ------------
@@ -14,6 +14,35 @@ Dependencies
 * Scipy
 * Matplotlib
 * FFMpeg
+
+Camera
+------
+
+Something something something...
+
+Overlay
+-------
+
+About:
+Code for overlaying a model on a video feed given pose parameters and a camera 
+calibration file.
+
+Usage:
+        $python overlay --video SOMEFILE.avi --pose POSES.csv --calib CALIB.xml [--stereo]
+
+* The camera calibration file should be in the OpenCV XML format.
+* The poses should be one for each frame on a new line in the format tx,ty,tz,r1,r2,r3 where the rotations are obtained from Rodrigues rotation forumla. Units are mm and radians.
+* The stereo flag is optional. This is only used for video splitting and does not make any assumptions about the calibration parameters.
+
+PosePlotter
+-----------
+
+A utility for plotting the pose of a tracking algorithm and a ground truth in 3D.
+
+Recolor
+-------
+
+Generating interesting colorspaces from an RGB image.
 
 Licence
 -------

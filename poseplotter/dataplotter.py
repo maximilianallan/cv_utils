@@ -52,15 +52,15 @@ class PosePlotter3D(DataPlotter):
 
   def __init__(self,estimated_pose_data,ground_truth_data,subplot):
     super(PosePlotter3D,self).__init__(subplot)
-    self.estimated_pose_data = self.parse_pose_file(estimated_pose_data,True)
-    self.ground_truth_data = self.parse_pose_file(ground_truth_data,True)
+    self.estimated_pose_data = self.parse_pose_file(estimated_pose_data,False)
+    self.ground_truth_data = self.parse_pose_file(ground_truth_data,False)
     
   def parse_pose_file(self,pose_file,normalize=False,med_filt=False,kernel_width=5):
     """Load in the pose data from the input files. Optionally clean the data up with a 1D 
     median filter and/or offset the data to start at (0,0,0,0,0,0)
     """    
     with open(pose_file,'r') as f:
-
+      
       points =  np.asarray(map(lambda x: map(float, x.strip("\n").split(',')),f.readlines()))
             
       #median filter the point with a kernel of width kernel_width 
@@ -71,7 +71,8 @@ class PosePlotter3D(DataPlotter):
 
       #force the plot to start from (0,0,0,0,0,0)
       if normalize:
-        points = points - points[0,:]
+        points[:,0:3] = points[:,0:3] - points[0,0:3]
+        #points[:,:] = points[:,:] - points[0,:]
       return points
   
   def setup(self, **kwargs):
@@ -92,7 +93,7 @@ class PosePlotter3D(DataPlotter):
     self.zlabel = "z position ({0})".format(self.units)
     
     self.subplot.set_title(self.title) #BUG: location of title moves if reset in refresh plot
-    self.subplot.legend(loc="upper right")
+    #self.subplot.legend(loc="upper right")
     self.subplot.set_xlabel( self.xlabel )
     self.subplot.set_ylabel( self.ylabel )
     self.subplot.set_zlabel( self.zlabel )
@@ -100,6 +101,7 @@ class PosePlotter3D(DataPlotter):
 
   def refresh_plot(self):
   
+    self.subplot.legend(loc="upper right")
     self.subplot.set_xlim3d( self.xrange[0], self.xrange[1] )
     self.subplot.set_ylim3d( self.yrange[0], self.yrange[1] )
     self.subplot.set_zlim3d( self.zrange[0], self.zrange[1] )  
@@ -122,7 +124,7 @@ class PosePlotter3D(DataPlotter):
   
     rotation,jacs = cv2.Rodrigues( dataset[i,3:6] )
 
-    start = np.dot(rotation,np.asarray([-15,0,0])) + dataset[i,0:3]
+    start = np.dot(rotation,np.asarray([-5,0,0])) + dataset[i,0:3]
     end = np.dot(rotation,np.asarray([15,0,0])) + dataset[i,0:3]
 
     top = np.dot(rotation,np.asarray([0,5,0])) + dataset[i,0:3]
@@ -140,13 +142,13 @@ class PosePlotter3D(DataPlotter):
     y = self.subplot.plot(xs = [bottom[0],dataset[i,0],top[0]],
                           ys = [bottom[1],dataset[i,1],top[1]],
                           zs = [bottom[2],dataset[i,2],top[2]],
-                          label=line_label,
+                          #label=line_label,
                           color=line_color)
             
     z = self.subplot.plot(xs = [left[0],dataset[i,0],right[0]],
                           ys = [left[1],dataset[i,1],right[1]],
                           zs = [left[2],dataset[i,2],right[2]],
-                          label=line_label,
+                          #label=line_label,
                           color=line_color)
     
 
