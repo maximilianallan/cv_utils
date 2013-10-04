@@ -72,7 +72,7 @@ class Overlay(object):
   
   def _plot_to_image(self):
   
-    for i in range(10):
+    for i in range(10): #there is a capture offset
       
       self.capture.read()
   

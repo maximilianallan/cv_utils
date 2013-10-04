@@ -52,8 +52,8 @@ class PosePlotter3D(DataPlotter):
 
   def __init__(self,estimated_pose_data,ground_truth_data,subplot):
     super(PosePlotter3D,self).__init__(subplot)
-    self.estimated_pose_data = self.parse_pose_file(estimated_pose_data,False)
-    self.ground_truth_data = self.parse_pose_file(ground_truth_data,False)
+    self.estimated_pose_data = self.parse_pose_file(estimated_pose_data,normalize=True)
+    self.ground_truth_data = self.parse_pose_file(ground_truth_data,normalize=True)
     
   def parse_pose_file(self,pose_file,normalize=False,med_filt=False,kernel_width=5):
     """Load in the pose data from the input files. Optionally clean the data up with a 1D 
@@ -71,8 +71,10 @@ class PosePlotter3D(DataPlotter):
 
       #force the plot to start from (0,0,0,0,0,0)
       if normalize:
-        points[:,0:3] = points[:,0:3] - points[0,0:3]
+        #points[:,0:3] = points[:,0:3] - points[0,0:3]
+        points[:,3:6] = points[:,3:6] - points[0,3:6]
         #points[:,:] = points[:,:] - points[0,:]
+        points[:,:] = points[:,:] + np.asarray( [ 0,0,0,0.031,0.731,-0.680 ] )
       return points
   
   def setup(self, **kwargs):
@@ -158,8 +160,8 @@ class PosePlotter2D(DataPlotter):
   def __init__(self,estimated_pose_data,ground_truth_data,subplot):
   
     super(PosePlotter2D,self).__init__(subplot)
-    self.estimated_pose_data = self.parse_pose_file(estimated_pose_data)
-    self.ground_truth_data = self.parse_pose_file(ground_truth_data)
+    self.estimated_pose_data = self.parse_pose_file(estimated_pose_data,normalize=True)
+    self.ground_truth_data = self.parse_pose_file(ground_truth_data,normalize=True)
   
   def parse_pose_file(self,pose_file,normalize=False,med_filt=False,kernel_width=5):
     """Load in the pose data from the input files. Optionally clean the data up with a 1D 

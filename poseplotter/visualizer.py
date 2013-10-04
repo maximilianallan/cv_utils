@@ -66,9 +66,9 @@ class Visualizer(object):
         
     def visualize(self):
     
-      ani = animation.FuncAnimation(self.figure, self.animate_plot, init_func = self.init_plot, frames = 100)
-      plt.show()          
-      #ani.save('./output/pose2d_sep.avi',fps=10,clear_temp=False)
+      ani = animation.FuncAnimation(self.figure, self.animate_plot, init_func = self.init_plot, frames = 200)
+      #plt.show()          
+      ani.save('./poseplotter/output/vid2.avi',fps=10,clear_temp=False)
 
 
             

@@ -38,25 +38,25 @@ class ColorSpace:
 
     def get_o2(self):
 
-        o2 = np.array( map(self.bgr2o2, np.reshape(self.image,(self.width*self.height,self.chans))),dtype=np.uint8)
+        o2 = np.array( map(self.bgr2o2, np.reshape(self.image,(self.width*self.height,self.chans))),dtype=np.float32)
         return np.reshape(o2,(self.height,self.width))
         
     def get_o3(self):
         
-        o3 = np.array(map(self.bgr2o3,np.reshape(self.image,(self.width*self.height,self.chans))),dtype=np.uint8)
+        o3 = np.array(map(self.bgr2o3,np.reshape(self.image,(self.width*self.height,self.chans))),dtype=np.float32)
         return np.reshape(o3,(self.height,self.width))
         
     def bgr2o2(self,x):
 
         try:            
-            return 0.5*(x[2]-x[1])
+            return 0.5*(float(x[2])-float(x[1]))
         except:
             return 0
 
     def bgr2o3(self,x):
 
         try:
-            return (0.5*x[0]) - 0.25*(x[2]+x[1])
+            return (0.5*float(x[0])) - 0.25*(float(x[2])+float(x[1]))
         except:
             return 0
 
