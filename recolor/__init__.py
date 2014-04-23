@@ -1,0 +1,1 @@
+from recolor import ColorSpace

@@ -4,10 +4,13 @@ import numpy as np
 
 class ColorSpace:
 
-    def __init__(self,image_path):
+    def __init__(self,image_path=None,image=None):
 
-        self.image = cv2.imread(image_path,1)
-        try:
+        if image_path is not None:
+            self.image = cv2.imread(image_path,1)
+        elif image is not None:
+            self.image = image
+        try:    
             (self.height,self.width,self.chans) = self.image.shape
         except:
             (self.height,self.width) = self.image.shape
@@ -28,12 +31,12 @@ class ColorSpace:
 
     def get_hue(self):
         
-        hsv = cv2.cvtColor(self.image,cv2.cv.CV_BGR2HSV)
+        hsv = cv2.cvtColor(self.image,cv2.COLOR_BGR2HSV)
         return hsv[:,:,0]
 
     def get_sat(self):
 
-        hsv = cv2.cvtColor(self.image,cv2.cv.CV_BGR2HSV)
+        hsv = cv2.cvtColor(self.image,cv2.COLOR_BGR2HSV)
         return hsv[:,:,1]
 
     def get_o2(self):
@@ -48,17 +51,17 @@ class ColorSpace:
         
     def bgr2o2(self,x):
 
-        try:            
-            return 0.5*(float(x[2])-float(x[1]))
-        except:
-            return 0
+        #try:            
+        return 0.5*(float(x[2])-float(x[1]))
+        #except:
+        #return 0
 
     def bgr2o3(self,x):
 
-        try:
-            return (0.5*float(x[0])) - 0.25*(float(x[2])+float(x[1]))
-        except:
-            return 0
+        #try:
+        return (0.5*float(x[0])) - 0.25*(float(x[2])+float(x[1]))
+        #except:
+        #    return 0
 
 
 if __name__ == '__main__':

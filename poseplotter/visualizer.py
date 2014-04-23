@@ -30,13 +30,14 @@ class Visualizer(object):
     def __init__(self,layout):
 
       matplotlib.rcParams.update({'font.family': 'serif'})
-      self.figure = plt.figure(figsize=(25,12),facecolor='white')
+      self.figure = plt.figure(figsize=(15,15),facecolor='white')
       self.artists = []
       self.layout = layout
                           
     def add_3dplot(self, estimated_pose_data, ground_truth_pose_data, position, rowspan, colspan, **kwargs):
       
       subplot = plt.subplot2grid(self.layout,position, rowspan, colspan,projection='3d')
+      subplot.elev=50
       self.artists.append( PosePlotter3D(estimated_pose_data,ground_truth_pose_data, subplot) )
       self.artists[-1].setup(**kwargs)
       
@@ -66,7 +67,7 @@ class Visualizer(object):
         
     def visualize(self):
     
-      ani = animation.FuncAnimation(self.figure, self.animate_plot, init_func = self.init_plot, frames = 200)
+      ani = animation.FuncAnimation(self.figure, self.animate_plot, init_func = self.init_plot, frames = 400)
       #plt.show()          
       ani.save('./poseplotter/output/vid2.avi',fps=10,clear_temp=False)
 

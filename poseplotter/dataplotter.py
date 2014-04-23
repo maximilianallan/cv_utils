@@ -71,15 +71,13 @@ class PosePlotter3D(DataPlotter):
 
       #force the plot to start from (0,0,0,0,0,0)
       if normalize:
-        #points[:,0:3] = points[:,0:3] - points[0,0:3]
-        points[:,3:6] = points[:,3:6] - points[0,3:6]
-        #points[:,:] = points[:,:] - points[0,:]
-        points[:,:] = points[:,:] + np.asarray( [ 0,0,0,0.031,0.731,-0.680 ] )
+        points[:,3:6] = points[:,3:6] - points[200,3:6]
+
       return points
   
   def setup(self, **kwargs):
 
-    self.title = kwargs.get("title","3D Pose Plot")
+    self.title = kwargs.get("title","")
  
     #if the user does not specify the range for the plots just bound them with the max,min of the data
     self.xrange = kwargs.get("xrange",(min(min(self.estimated_pose_data[:,0]),min(self.ground_truth_data[:,0])), 
@@ -119,21 +117,34 @@ class PosePlotter3D(DataPlotter):
     
     self.plot_data( self.estimated_pose_data, "estimated", "red" , i)
     self.plot_data( self.ground_truth_data, "ground truth", "blue", i)
+    self.draw_camera()
     
+  def draw_camera(self):
+    camera_width = 2
+    camera_height = 2
+    camera_depth = 6 #make this larger as axes scale
+    self.subplot.plot(xs = [0,camera_width],ys = [0,camera_height],zs = [0,camera_depth], color="black")
+    self.subplot.plot(xs = [0,-camera_width],ys = [0,camera_height],zs = [0,camera_depth], color="black")
+    self.subplot.plot(xs = [0,camera_width],ys = [0,-camera_height],zs = [0,camera_depth], color="black")
+    self.subplot.plot(xs = [0,-camera_width],ys = [0,-camera_height],zs = [0,camera_depth], color="black")
+    self.subplot.plot(xs = [camera_width,-camera_width],ys = [camera_height,camera_height],zs = [camera_depth,camera_depth], color="black")
+    self.subplot.plot(xs = [camera_width,camera_width],ys = [camera_height,-camera_height],zs = [camera_depth,camera_depth], color="black")
+    self.subplot.plot(xs = [-camera_width,-camera_width],ys = [-camera_height,camera_height],zs = [camera_depth,camera_depth], color="black")
+    self.subplot.plot(xs = [-camera_width,camera_width],ys = [-camera_height,-camera_height],zs = [camera_depth,camera_depth], color="black")
     
     
   def plot_data(self, dataset, line_label, line_color, i):
   
     rotation,jacs = cv2.Rodrigues( dataset[i,3:6] )
 
-    start = np.dot(rotation,np.asarray([-5,0,0])) + dataset[i,0:3]
-    end = np.dot(rotation,np.asarray([15,0,0])) + dataset[i,0:3]
+    start = np.dot(rotation,np.asarray([-2,0,0])) + dataset[i,0:3]
+    end = np.dot(rotation,np.asarray([5,0,0])) + dataset[i,0:3]
 
-    top = np.dot(rotation,np.asarray([0,5,0])) + dataset[i,0:3]
-    bottom = np.dot(rotation,np.asarray([0,-5,0])) + dataset[i,0:3]
+    top = np.dot(rotation,np.asarray([0,1,0])) + dataset[i,0:3]
+    bottom = np.dot(rotation,np.asarray([0,-1,0])) + dataset[i,0:3]
 
-    left = np.dot(rotation,np.asarray([0,0,5])) + dataset[i,0:3]
-    right = np.dot(rotation,np.asarray([0,0,-5])) + dataset[i,0:3]
+    left = np.dot(rotation,np.asarray([0,0,1])) + dataset[i,0:3]
+    right = np.dot(rotation,np.asarray([0,0,-1])) + dataset[i,0:3]
 
     x = self.subplot.plot(xs = [start[0],dataset[i,0],end[0]],
                           ys = [start[1],dataset[i,1],end[1]],

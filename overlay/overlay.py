@@ -17,7 +17,18 @@ class Model(object):
   def __init__(self,calibration_file):
     
     self.points = []
-    print calibration_file
+    
+    self.points.append( Point(np.asarray([5,0,0]),[1]) )
+    self.points.append( Point(np.asarray([-5,0,0]),[0]) )
+    
+    self.points.append( Point(np.asarray([0,2,0]),[3]) )
+    self.points.append( Point(np.asarray([0,-2,0]),[2]) )
+    
+    self.points.append( Point(np.asarray([0,0,2]),[5]) )
+    self.points.append( Point(np.asarray([0,0,-2]),[4]) )
+    
+    return
+    
     with open(calibration_file,'r') as f:
     
       lines = f.readlines()
@@ -76,6 +87,7 @@ class Overlay(object):
       
       self.capture.read()
   
+    self.first = True
     
     for pose in self.poses:#[5:-1]:
       
@@ -87,7 +99,7 @@ class Overlay(object):
   def _draw_on_frame(self,frame,pose):
   
     transformed_points = self._transform_model(pose)
-        
+    
     for point in transformed_points:
       
       projected_point = self.camera.project(point.vertex.reshape(1,3))
@@ -108,17 +120,25 @@ class Overlay(object):
     return frame    
       
       
-    
+  
   def _transform_model(self, pose):
   
-    rotation_matrix,jacs = cv2.Rodrigues(np.asarray(pose[3:6]))
-    translation = np.asarray(pose[0:3])
+    
+    if self.first == True:
+      self.start_pose = pose
+      self.first = False
+      
+      
+    #rotation_matrix,jacs = cv2.Rodrigues(np.asarray([pose[3]+1.1,pose[4],pose[5]-0.4]))
+    rotation_matrix,jacs = cv2.Rodrigues(np.asarray([pose[3],pose[4],pose[5]]))
+    translation = np.asarray(pose[0:3]) - np.asarray([self.start_pose[0],self.start_pose[1],0])
+    print translation
     
     transformed_points = []
     
     for point in self.model.points:
     
-      vertex = np.dot(rotation_matrix,point.vertex) + translation + np.asarray([20.4,-18.5,0])
+      vertex = np.dot(rotation_matrix,point.vertex) + translation# + np.asarray([20.4,-18.5,0])
       transformed_points.append( Point(vertex, point.neighbors ) )
     
     return transformed_points
