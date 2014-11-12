@@ -37,17 +37,18 @@ class ColorSpace:
     def get_sat(self):
 
         hsv = cv2.cvtColor(self.image,cv2.COLOR_BGR2HSV)
-        return hsv[:,:,1]
-
+        return hsv[:,:,1]   
+    
     def get_o2(self):
 
-        o2 = np.array( map(self.bgr2o2, np.reshape(self.image,(self.width*self.height,self.chans))),dtype=np.float32)
-        return np.reshape(o2,(self.height,self.width)).astype(np.uint8,copy=False)
+        o2 = np.array( map(self.bgr2o2, np.reshape(self.image,(self.width*self.height,self.chans))),dtype=np.float32)#
+        return np.reshape(o2,(self.height,self.width))
+        #return np.reshape(o2,(self.height,self.width)).astype(np.uint8,copy=False) - THIS IS BAD AS THE VALUES CANNOT MAP To 0-255
         
     def get_o3(self):
         
         o3 = np.array(map(self.bgr2o3,np.reshape(self.image,(self.width*self.height,self.chans))),dtype=np.float32)
-        return np.reshape(o3,(self.height,self.width)).astype(np.uint8,copy=False)
+        return np.reshape(o3,(self.height,self.width))#.astype(np.uint8,copy=False)
         
     def bgr2o2(self,x):
 

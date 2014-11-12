@@ -3,8 +3,8 @@ import os
 
 class Grabber(object):
 
-  def __init__(self):
-    
+  def __init__(self, do_stereo):
+    self.__do_stereo = do_stereo
     pass
     
   def open(self,videofile):
@@ -23,6 +23,10 @@ class Grabber(object):
       n+=1
     
     os.mkdir(self.__save_dir)
+    
+    if self.__do_stereo:
+      os.mkdir(self.__save_dir + "/left")
+      os.mkdir(self.__save_dir + "/right")
     
     
   def run(self):
@@ -53,8 +57,18 @@ class Grabber(object):
         
     
   def save(self,frame):
-  
-    cv2.imwrite(os.path.join(self.__save_dir,"frame{count}.png".format(count=self.__count)),frame)
+    #save as jpg as bouguet calib software doesn't support png
+    if self.__do_stereo:
+      
+      width = int(frame.shape[1]/2)
+      
+      left = frame[:,0:width]
+      right = frame[:,width:2*width]
+    
+      cv2.imwrite(os.path.join(self.__save_dir,"left/frame{count}.jpg".format(count=self.__count)),left)
+      cv2.imwrite(os.path.join(self.__save_dir,"right/frame{count}.jpg".format(count=self.__count)),right)
+    else:
+      cv2.imwrite(os.path.join(self.__save_dir,"frame{count}.jpg".format(count=self.__count)),frame)
     
     self.__count+=1
     

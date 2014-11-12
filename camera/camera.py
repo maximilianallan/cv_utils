@@ -85,3 +85,21 @@ class StereoCamera(BaseCamera):
     right_cam =  self.str_to_mat( xmldoc.getElementsByTagName("Right_Camera_Matrix")[0].getElementsByTagName("data")[0].childNodes[0].nodeValue )
     right_dist = self.str_to_mat( xmldoc.getElementsByTagName("Right_Distortion_Coefficients")[0].getElementsByTagName("data")[0].childNodes[0].nodeValue )
     self.right_eye = MonocularCamera(intrinsic_parameters=right_cam,distortion_parameters=right_dist)
+  
+  def transform_point(self,world_point):
+      
+    n = np.dot( self.extrinsic_camera_rotation, world_point.transpose() )
+    n = n.transpose()   
+    j = n + self.extrinsic_camera_translation
+    return j
+  
+  def project(self, world_point):
+    
+    left = self.left_eye.project(world_point)
+    
+    t_world_point = self.transform_point(world_point)
+    right = self.right_eye.project(t_world_point)
+    
+    return (left,right)
+    
+    
