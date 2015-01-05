@@ -15,8 +15,5 @@ def chomp_video(infile, start, end, outfile):
   
   cmd = "ffmpeg -i {input} -vcodec copy -acodec copy -ss {start} -t {duration} {output}".format(input = infile, start = as_string(start), duration=str(duration), output = outfile)
   
-  print cmd
-  return
-  
   p = subprocess.Popen(cmd)
   ret_code = p.wait()
