@@ -50,7 +50,7 @@ class Grabber(object):
       if key == ord(" "):
       
         self.save(frame)
-        
+
       elif key == ord("q"):
         
         break
@@ -65,10 +65,10 @@ class Grabber(object):
       left = frame[:,0:width]
       right = frame[:,width:2*width]
     
-      cv2.imwrite(os.path.join(self.__save_dir,"left/frame{count}.jpg".format(count=self.__count)),left)
-      cv2.imwrite(os.path.join(self.__save_dir,"right/frame{count}.jpg".format(count=self.__count)),right)
+      cv2.imwrite(os.path.join(self.__save_dir,"left/frame{count}.bmp".format(count=self.__count)),left)
+      cv2.imwrite(os.path.join(self.__save_dir,"right/frame{count}.bmp".format(count=self.__count)),right)
     else:
-      cv2.imwrite(os.path.join(self.__save_dir,"frame{count}.jpg".format(count=self.__count)),frame)
+      cv2.imwrite(os.path.join(self.__save_dir,"frame{count}.bmp".format(count=self.__count)),frame)
     
     self.__count+=1
     

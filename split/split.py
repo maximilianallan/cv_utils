@@ -14,16 +14,18 @@ def split(frame):
 def split_video(infile):
 
   import subprocess
-
+  
+  
   v = cv2.VideoCapture(infile)
-  encoder =  int(v.get(cv2.CAP_PROP_FOURCC))
-  encoder = cv2.VideoWriter_fourcc("D","I","B"," ")
-  size = (int(v.get(cv2.CAP_PROP_FRAME_WIDTH)/2),int(v.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+  #encoder =  int(v.get(cv2.cv.CV_FOURCC))
+  encoder = cv2.cv.CV_FOURCC("D","I","B"," ")
+  size = (int(v.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)/2),int(v.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)))
   del v
 
-  #-ss 00:00:20 -t 00:01:40
-  left_cmd = "ffmpeg -i {input} -filter:v crop={width}:{height}:{left_x_start}:{left_y_start} -b:v 3M {output}".format(input=infile,width=size[0],height=size[1],left_x_start=0,left_y_start=0,output="left.avi")
-  right_cmd = "ffmpeg -i {input} -filter:v crop={width}:{height}:{right_x_start}:{right_y_start} -b:v 3M {output}".format(input=infile,width=size[0],height=size[1],right_x_start=size[0],right_y_start=0,output="right.avi")
+  #-ss 00:00:20 -t 00:01:40  10M
+  left_cmd = "ffmpeg -i {input} -vcodec h264 -filter:v crop={width}:{height}:{left_x_start}:{left_y_start} -crf 18 {output}".format(input=infile,width=size[0],height=size[1],left_x_start=0,left_y_start=0,output="left.avi")
+ 
+  right_cmd = "ffmpeg -i {input} -filter:v crop={width}:{height}:{right_x_start}:{right_y_start} -vcodec h264 -crf 18 {output}".format(input=infile,width=size[0],height=size[1],right_x_start=size[0],right_y_start=0,output="right.avi")
 
   p = subprocess.Popen(left_cmd)
   ret_code = p.wait()
@@ -31,10 +33,10 @@ def split_video(infile):
   ret_code_ = p.wait()
 
   """
+  
   v = cv2.VideoCapture(infile)
-  encoder =  int(v.get(cv2.CAP_PROP_FOURCC))
-  encoder = cv2.VideoWriter_fourcc("D","I","B"," ")
-  size = (int(v.get(cv2.CAP_PROP_FRAME_WIDTH)/2),int(v.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+  encoder = cv2.cv.CV_FOURCC("D","I","B"," ")
+  size = (int(v.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)/2),int(v.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)))
 
   left = cv2.VideoWriter("left.avi", encoder, 25, size)
   right = cv2.VideoWriter("right.avi", encoder, 25, size)
@@ -52,8 +54,8 @@ def split_video(infile):
 
     left.write(l)
     right.write(r)
-  """
   
+  """
 
 def split_images(indir):
 

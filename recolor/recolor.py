@@ -16,28 +16,39 @@ class ColorSpace:
             (self.height,self.width) = self.image.shape
             self.chans = 1
 
-    def process(self,target_colorspace):
+    def process(self,target_colorspace, apply_colormap):
         
         if target_colorspace == "hue":
-            return cv2.applyColorMap(self.get_hue(),cv2.COLORMAP_HSV)
+            i = self.get_hue()
         elif target_colorspace == "sat":
-            return cv2.applyColorMap(self.get_sat(),cv2.COLORMAP_HSV)
+            i = self.get_sat()
         elif target_colorspace == "o2":
-            return cv2.applyColorMap(self.get_o2(),cv2.COLORMAP_HSV)
+            i = self.get_o2()
         elif target_colorspace == "o3":
-            return cv2.applyColorMap(self.get_o3(),cv2.COLORMAP_HSV)
+            i = self.get_o3()
+        elif target_colorspace == "all":
+            i = np.ndarray(shape=(self.image.shape[0],self.image.shape[1],4), dtype=np.float32)
+            i[:,:,0] = self.get_hue()
+            i[:,:,1] = self.get_sat()
+            i[:,:,2] = self.get_o2()
+            i[:,:,3] = self.get_o3()
         else:
             raise Exception("Error, unsupported color space specified")
 
+        if apply_colormap == False:
+          return i
+        else:
+          return cv2.applyColorMap(i,cv2.COLORMAP_HSV)
+            
     def get_hue(self):
         
         hsv = cv2.cvtColor(self.image,cv2.COLOR_BGR2HSV)
-        return hsv[:,:,0]
+        return hsv[:,:,0].astype(np.float32)
 
     def get_sat(self):
 
         hsv = cv2.cvtColor(self.image,cv2.COLOR_BGR2HSV)
-        return hsv[:,:,1]   
+        return hsv[:,:,1].astype(np.float32)
     
     def get_o2(self):
 
