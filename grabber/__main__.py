@@ -1,29 +1,29 @@
-import sys
+import argparse, os.path
 
-def print_error_and_exit():
-  print("Error, incorrect arguments. Run as:\n\n\t\tpython grabber INFILE\n")
-  print("Optional argument --stereo if frames grabbed should be split and dumped in a left and right folder.\n\n")
+parser = argparse.ArgumentParser(description='Quickly extract frames from a single video or synchronously from a stereo video.')
+parser.add_argument('--video-file', type=str, help='The video file.', required=True)
+parser.add_argument('--right-video-file', type=str, help='The optional right video file for stereo setups.')
+parser.add_argument('--split', dest='split', action="store_true", help='Assume the video file is side-by-side stereo and split the frames into left and right.')
+
+args = parser.parse_args()
+
+if not os.path.exists(args.video_file):
+  parser.print_help()
+  import sys
   sys.exit(1)
 
-
-if len(sys.argv) == 3: 
- 
-  if sys.argv[2] != "--stereo":  
-    print_error_and_exit()
-  else:
-    do_stereo = True
-elif len(sys.argv) == 2:
-
-  do_stereo = False
+if args.right_video_file is not None and args.split is True:
+  print args.right_video_file
+  print args.split
+  parser.print_help()
+  import sys
+  sys.exit(1)
   
-else:
-
-  print_error_and_exit()
-  
+                                
 from grabber import Grabber
 
-g = Grabber(do_stereo)
-g.open(sys.argv[1])
+g = Grabber(args.split)
+g.open(args.video_file, args.right_video_file)
 g.run()
 
 print("\nDone extracting frames!\n\n")

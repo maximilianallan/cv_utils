@@ -1,13 +1,14 @@
 import cv2
 import os
+import numpy as np
 
 class Grabber(object):
 
-  def __init__(self, do_stereo):
-    self.__do_stereo = do_stereo
+  def __init__(self, split_stereo):
+    self.__split_stereo = split_stereo
     pass
     
-  def open(self,videofile):
+  def open(self,videofile,right_videofile=None):
   
     self.__cap = cv2.VideoCapture(videofile)
     if not self.__cap.isOpened():
@@ -23,8 +24,13 @@ class Grabber(object):
       n+=1
     
     os.mkdir(self.__save_dir)
-    
-    if self.__do_stereo:
+
+    if right_videofile is not None:
+      self.__right_cap = cv2.VideoCapture(right_videofile)
+    else:
+      self.__right_cap = None
+      
+    if self.__split_stereo or right_videofile is not None:
       os.mkdir(self.__save_dir + "/left")
       os.mkdir(self.__save_dir + "/right")
     
@@ -40,8 +46,17 @@ class Grabber(object):
       frame = self.__cap.read()
       if frame[0] == False:
         break
-      
-      frame = frame[1]
+
+      if self.__right_cap is not None:
+        right_frame = self.__right_cap.read()
+        if right_frame[0] == False:
+          break
+        frame_ = np.ndarray(shape=(frame[1].shape[0], frame[1].shape[1]+right_frame[1].shape[1],3),dtype=frame[1].dtype)
+        frame_[:,0:frame[1].shape[1],:] = frame[1]
+        frame_[:,frame[1].shape[1]:,:] = right_frame[1]
+        frame = frame_
+      else:
+        frame = frame[1]
       
       cv2.imshow(self.__WIN_ID,frame)
       
@@ -58,7 +73,7 @@ class Grabber(object):
     
   def save(self,frame):
     #save as jpg as bouguet calib software doesn't support png
-    if self.__do_stereo:
+    if self.__split_stereo or self.__right_cap is not None:
       
       width = int(frame.shape[1]/2)
       
