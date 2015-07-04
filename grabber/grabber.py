@@ -60,10 +60,8 @@ class Grabber(object):
       
       cv2.imshow(self.__WIN_ID,frame)
       
-      key = cv2.waitKey(40)
+      key = cv2.waitKey(40) & 255
 
-      print key
-      
       if key == ord(" "):
 
         self.save(frame)
