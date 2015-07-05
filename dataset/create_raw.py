@@ -17,15 +17,28 @@ def mkmv(infile,outfile):
   
 def mk_dir_link(indir, outdir):
 
-  import win32file
-  win32file.CreateSymbolicLink(outdir, indir, 1)
+  if os.name == "posix":
+    os.symlink(indir, outdir)
+    
+  elif os.name == "nt":
+    import win32file
+    win32file.CreateSymbolicLink(outdir, indir, 1)
+    
+  else:
+    raise Exception("Unknown OS")
   
 def mklink(infile, outdir):
 
-  import win32file
-  win32file.CreateSymbolicLink(os.path.join(outdir, os.path.basename(infile)), infile, 0)
+  if os.name == "posix":
+    os.symlink(indir, outdir)
     
-
+  elif os.name == "nt":
+    import win32file
+    win32file.CreateSymbolicLink(os.path.join(outdir, os.path.basename(infile)), infile, 0)
+    
+  else:
+    raise Exception("Unknown OS")
+    
 def add_camera(cam_file, outdir):
 
   if not os.path.exists(outdir + "/camera"):
