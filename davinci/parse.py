@@ -23,7 +23,7 @@ def run_dvrk(suj_infile, j_infile, suj_outfile, j_outfile, LINES_NUM, is_ecm = F
   try:
     with open(suj_infile,"r") as infile:
 
-      suj_value = extract(suj_infile, "ISI_SUJ_JOINT_VALUES")
+      suj_value = extract(infile, "ISI_SUJ_JOINT_VALUES")
       
       with open(suj_outfile,"w") as outfile:
         for i in range(LINES_NUM):
@@ -33,7 +33,7 @@ def run_dvrk(suj_infile, j_infile, suj_outfile, j_outfile, LINES_NUM, is_ecm = F
     
       with open(j_infile,"r") as infile:
 
-        j_value = extract(j_infile, "ISI_JOINT_VALUES")
+        j_value = extract(infile, "ISI_JOINT_VALUES")
       
       with open(j_outfile,"w") as outfile:
         for i in range(LINES_NUM):
