@@ -16,6 +16,50 @@ def isfloat(val):
   except:
     return False
 
+    
+    
+def run_dvrk(suj_infile, j_infile, suj_outfile, j_outfile, LINES_NUM, is_ecm = False):
+  
+  try:
+    with open(suj_infile,"r") as infile:
+
+      suj_value = extract(suj_infile, "ISI_SUJ_JOINT_VALUES")
+      
+      with open(suj_outfile,"w") as outfile:
+        for i in range(LINES_NUM):
+          outfile.write(suj_value)
+      
+    if is_ecm:
+    
+      with open(j_infile,"r") as infile:
+
+        j_value = extract(j_infile, "ISI_JOINT_VALUES")
+      
+      with open(j_outfile,"w") as outfile:
+        for i in range(LINES_NUM):
+          outfile.write(j_value)
+    else:
+      
+      with open(j_infile, "r") as infile:
+        
+        l = infile.readlines()
+        
+        with open(j_outfile, "w") as outfile:
+        
+          for ll in l:
+            ll_nl = ll.replace(",", " ")
+            outfile.write(ll_nl)
+          
+        
+      
+      
+      
+  except IOError:
+    print("\nError, could not find input file: {0}\n".format(suj_infile))
+    sys.exit(1)
+
+
+ 
 def run(infile, suj_outfile, j_outfile, interpolate_val, rigid_only):
 
   try:
@@ -55,6 +99,20 @@ def splitoncolon(line):
     sp = line.split(":")
     return "".join(sp[1:])
 
+def extract(infile, target):
+
+  lines = infile.read().split(target)[1:-1] #first value will not be useful
+  for line in [ l for l in lines if l != "" ]:
+    line = line.strip("\n").split("\n")
+    line = line[0:line.index("")] #get vals up to first empty
+    for n,l in enumerate(line):
+      if n > 3 and rigid_only: #this will only be the case if we are parsing SUJs and Js.
+        outfile.write("0\n")
+        continue
+      l = splitoncolon(l)
+      sp = " ".join([f for f in re.split("[ ,]",l) if f != ""])
+      return sp
+    
 def process(infile,outfile,target,rigid_only):
 
   lines = infile.read().split(target)[1:-1] #first value will not be useful

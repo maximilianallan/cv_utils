@@ -98,15 +98,25 @@ def process_raw_data(raw_data_dir, rigid_only, interpolate, split_video):
     video_file = filter(lambda x : os.path.splitext(x)[1] == ".avi", files)[0]
     split.split_video(video_file)
   
-  psm1_file = filter(lambda x : len(re.findall("psm1",x,re.IGNORECASE)) == 1, files)[0]
-  psm2_file = filter(lambda x : len(re.findall("psm2",x,re.IGNORECASE)) == 1, files)[0]
+  psm1_files = filter(lambda x : len(re.findall("psm1",x,re.IGNORECASE)) == 1, files)
+  psm2_files = filter(lambda x : len(re.findall("psm2",x,re.IGNORECASE)) == 1, files)
+  
+  psm1_suj_file = filter(lambda x : len(re.findall("capture",x,re.IGNORECASE)) == 1, psm1_files)[0]
+  psm1_j_file = [j for j in psm1_files if j != psm1_suj_file][0]
+    
+  psm2_suj_file = filter(lambda x : len(re.findall("capture",x,re.IGNORECASE)) == 1, psm2_files)[0]
+  psm2_j_file = [j for j in psm1_files if j != psm2_suj_file][0]
+  
   #psm3_file = filter(lambda x : len(re.findall("psm3",x,re.IGNORECASE)) == 1, files)[0]
   ecm_file = filter(lambda x : len(re.findall("ecm",x,re.IGNORECASE)) == 1, files)[0]
   
-  parse.run(psm1_file, "psm1_suj.txt", "psm1_j.txt", interpolate, rigid_only)
-  parse.run(psm2_file, "psm2_suj.txt", "psm2_j.txt", interpolate, rigid_only)
+  parse.run_dvrk(psm1_suj_file, psm1_j_file, "psm1_suj.txt", "psm1_j.txt", len(open(psm1_j_file,"r").readlines()), False)
+  parse.run_dvrk(psm2_suj_file, psm2_j_file, "psm2_suj.txt", "psm2_j.txt", len(open(psm2_j_file,"r").readlines()), False)
+  
   #parse.run(psm3_file, "psm3_suj.txt", "psm3_j.txt", interpolate, rigid_only)
-  parse.run(ecm_file, "ecm_suj.txt", "ecm_j.txt", interpolate, False)
+  parse.run_dvrk(ecm_file, ecm_file, "ecm_suj.txt", "ecm_j.txt", len(open(psm1_j_file,"r").readlines()), True)
+
+  #parse.run(ecm_file, "ecm_suj.txt", "ecm_j.txt", interpolate, False)
    
   os.chdir(cwd)
   
