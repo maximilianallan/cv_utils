@@ -59,12 +59,15 @@ parser.add_argument('--rigid', dest='rigid_only', action="store_true", help='Onl
 parser.add_argument('--psm1', action="store_true", help='Sequence contains PSM 1.')
 parser.add_argument('--psm2', action="store_true", help='Sequence contains PSM 2.')
 #parser.add_argument('--psm3', action="store_true", help='Sequence contains PSM 3.')
+parser.add_argument("--model", type=str, help="JSON model file.")
 
 parser.add_argument('--cam', type=str, help='Camera calibration file.')
 parser.add_argument('--classifier', type=str, help='Pixel classifier file.')
 parser.add_argument('--interpolate', type=int, help='Interpolate the values for smoother motion.', default=1) 
 
 parser.add_argument('--stereo-split', action='store_true', help="Sequence recorded as a stereo feed in one file so needs splitting.")
+
+
 
 args = parser.parse_args()
 
@@ -85,17 +88,17 @@ mklink(right_video_file, args.output_dir)
 if args.psm1:
   mkmv(psm1_suj_file, args.output_dir + "/trackables/psm1/psm1_suj.txt")
   mkmv(psm1_j_file, args.output_dir + "/trackables/psm1/psm1_j.txt")
-  add_trk_cfg(args.output_dir + "/trackables/psm1/", "PSM1", "z:/phd/data/model/model.json")
+  add_trk_cfg(args.output_dir + "/trackables/psm1/", "PSM1", args.model)
   
 if args.psm2:  
   mkmv(psm2_suj_file, args.output_dir + "/trackables/psm2/psm2_suj.txt")
   mkmv(psm2_j_file, args.output_dir + "/trackables/psm2/psm2_j.txt")
-  add_trk_cfg(args.output_dir + "/trackables/psm2/", "PSM2", "z:/phd/data/model/model.json")
+  add_trk_cfg(args.output_dir + "/trackables/psm2/", "PSM2", args.model)
   
 #if args.psm3:
 #  mkmv(psm3_suj_file, args.output_dir + "/trackables/psm3/psm3_suj.txt")
 #  mkmv(psm3_j_file, args.output_dir + "/trackables/psm3/psm3_j.txt")
-#  add_trk_cfg(args.output_dir + "/trackables/psm3/", "PSM3", "z:/phd/data/model/model.json")
+#  add_trk_cfg(args.output_dir + "/trackables/psm3/", "PSM3", args.model)
 
 
 #add the pose data for the ECMs to the output directories and create the config files
