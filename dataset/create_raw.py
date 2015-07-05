@@ -27,10 +27,10 @@ def mk_dir_link(indir, outdir):
   else:
     raise Exception("Unknown OS")
   
-def mklink(infile, outdir):
+def mklink(infile, infile):
 
   if os.name == "posix":
-    os.symlink(indir, outdir)
+    os.symlink(infile, infile)
     
   elif os.name == "nt":
     import win32file
