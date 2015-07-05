@@ -34,20 +34,5 @@ for f,g in zip(args.training_data, args.masks):
 t = Trainer(args.training_data, args.masks, "rf", args.num_labels)
 t.train()
 
-c = cv2.VideoCapture("c:/users/max/Desktop/dump/output.avi")
-count = 0
-
-while True:
-
-    i = c.read()
-    if i[0] == None:
-        break
-
-    j = t.predict(i[1])#, 
-
-    cv2.imwrite("c:/users/max/Desktop/dump/output/frame{0}.png".format(count), j[:,:,0])
-    
-    count += 1
-
-#for n,im in enumerate(t.images):
-#  t.predict(im, "image_{0}.bmp".format(n))
+for n,im in enumerate(t.images):
+  t.predict(im, "image_{0}.bmp".format(n))
