@@ -51,6 +51,14 @@ def add_classifier(classifier_file, outdir):
     os.mkdir(outdir + "/classifier")
   mklink( classifier_file, outdir + "/classifier/" )
   
+#check root on windows
+
+if os.name == "nt":
+  from win32com.shell import shell
+  if not shell.IsUserAnAdmin():
+    print("Error, must be root to run this on windows - creates symbolic links")
+    sys.exit(1)
+
 
 parser = argparse.ArgumentParser(description='Quickly create a dataset.')
 parser.add_argument('--raw-dir', type=str, help='The full directory path containing the raw da vinci files.', required=True)
@@ -91,11 +99,11 @@ else:
   check_output_dir(args.output_dir)
 
 #split the video and process the raw dv files
-#try:
+try:
   left_video_file, right_video_file, psm1_suj_file, psm1_j_file, psm2_suj_file, psm2_j_file, ecm_suj_file, ecm_j_file = process_raw_data(args.raw_dir, args.rigid_only, args.interpolate, args.stereo_split, args.psm1, args.psm2) 
-#except Exception as e:
-#  print("\nError processing raw data: " + e.args[0])
-#  sys.exit(1)
+except Exception as e:
+  print("\nError processing raw data: " + e.args[0])
+  sys.exit(1)
   
 #add the videos to the output directory
 mklink(left_video_file, args.output_dir)
