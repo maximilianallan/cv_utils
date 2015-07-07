@@ -59,6 +59,9 @@ def add_trk_cfg(root_dir, joint, model_file = None, arm_offsets = None, base_off
   elif not os.path.exists(model_file):
     raise Exception("Model file: {0} does not exist.\n".format(model_file))
   
+  else:
+    model_file = clean_win_path(model_file)
+  
   if arm_offsets is None:
     arm_offsets = [0] * 7
   if base_offsets is None:
