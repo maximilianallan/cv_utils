@@ -53,13 +53,13 @@ def add_classifier(classifier_file, outdir):
   
 
 parser = argparse.ArgumentParser(description='Quickly create a dataset.')
-parser.add_argument('--raw-dir', type=str, help='The directory containing the raw da vinci files.', required=True)
-parser.add_argument('--output-dir', type=str, help='The directory where the processed data files will be saved', required=True)
+parser.add_argument('--raw-dir', type=str, help='The full directory path containing the raw da vinci files.', required=True)
+parser.add_argument('--output-dir', type=str, help='The full directory path where the processed data files will be saved', required=True)
 parser.add_argument('--rigid', dest='rigid_only', action="store_true", help='Only load the rigid pose parameter - i.e. ignore the articulated head.')
 parser.add_argument('--psm1', action="store_true", help='Sequence contains PSM 1.')
 parser.add_argument('--psm2', action="store_true", help='Sequence contains PSM 2.')
 #parser.add_argument('--psm3', action="store_true", help='Sequence contains PSM 3.')
-parser.add_argument("--model", type=str, help="JSON model file.")
+parser.add_argument("--model", type=str, help="Full path to JSON model file.")
 
 parser.add_argument('--cam', type=str, help='Camera calibration file.')
 parser.add_argument('--classifier', type=str, help='Pixel classifier file.')
@@ -67,9 +67,22 @@ parser.add_argument('--interpolate', type=int, help='Interpolate the values for 
 
 parser.add_argument('--stereo-split', action='store_true', help="Sequence recorded as a stereo feed in one file so needs splitting.")
 
-
-
 args = parser.parse_args()
+
+if not os.path.isabs(args.raw_dir):
+  print("Error, raw directory path should be absolute.\n")
+  args.print_help()
+  sys.exit(1)
+  
+if not os.path.isabs(args.output_dir):
+  print("Error, output directory path should be absolute.\n")
+  args.print_help()
+  sys.exit(1)
+  
+if not os.path.isabs(args.model):
+  print("Error, model json file path should be absolute.\n")
+  args.print_help()
+  sys.exit(1)
 
 #check if the output directory exists, if not then create it.
 if not os.path.exists(args.output_dir):
@@ -78,7 +91,11 @@ else:
   check_output_dir(args.output_dir)
 
 #split the video and process the raw dv files
-left_video_file, right_video_file, psm1_suj_file, psm1_j_file, psm2_suj_file, psm2_j_file, ecm_suj_file, ecm_j_file = process_raw_data(args.raw_dir, args.rigid_only, args.interpolate, args.stereo_split) 
+#try:
+  left_video_file, right_video_file, psm1_suj_file, psm1_j_file, psm2_suj_file, psm2_j_file, ecm_suj_file, ecm_j_file = process_raw_data(args.raw_dir, args.rigid_only, args.interpolate, args.stereo_split, args.psm1, args.psm2) 
+#except Exception as e:
+#  print("\nError processing raw data: " + e.args[0])
+#  sys.exit(1)
   
 #add the videos to the output directory
 mklink(left_video_file, args.output_dir)

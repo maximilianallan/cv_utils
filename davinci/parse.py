@@ -27,7 +27,8 @@ def run_dvrk(suj_infile, j_infile, suj_outfile, j_outfile, LINES_NUM, is_ecm = F
       
       with open(suj_outfile,"w") as outfile:
         for i in range(LINES_NUM):
-          outfile.write(suj_value)
+          
+          outfile.write(" ".join(suj_value) + "\n")
       
     if is_ecm:
     
@@ -37,7 +38,7 @@ def run_dvrk(suj_infile, j_infile, suj_outfile, j_outfile, LINES_NUM, is_ecm = F
       
       with open(j_outfile,"w") as outfile:
         for i in range(LINES_NUM):
-          outfile.write(j_value)
+          outfile.write(" ".join(j_value) + "\n")
     else:
       
       with open(j_infile, "r") as infile:
@@ -102,20 +103,29 @@ def splitoncolon(line):
 def extract(infile, target):
 
   lines = infile.read().split(target)[1:-1] #first value will not be useful
+  outputs = []
   for line in [ l for l in lines if l != "" ]:
-  
+    
     line = line.replace("\r\n","\n")
     line = line.strip("\n").split("\n")
+    
     line = line[0:line.index("")] #get vals up to first empty
     
-    for n,l in enumerate(line):
-      if n > 3 and rigid_only: #this will only be the case if we are parsing SUJs and Js.
-        outfile.write("0\n")
-        continue
-      l = splitoncolon(l)
-      sp = " ".join([f for f in re.split("[ ,]",l) if f != ""])
-      return sp
+    single_line = []
     
+    for n,l in enumerate(line):
+    
+    
+      l = splitoncolon(l)
+      
+      sp = " ".join([f for f in re.split("[ ,]",l) if f != ""])
+      
+      single_line.append(sp)
+  
+    outputs.append(single_line)
+    
+  return outputs[int(len(outputs)/2)]
+  
 def process(infile,outfile,target,rigid_only):
 
   lines = infile.read().split(target)[1:-1] #first value will not be useful

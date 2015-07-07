@@ -3,8 +3,8 @@ import sys
 from dataset.dataset import TTrackAppCfg, VizAppCfg, process_raw_data, clean_win_path
 
 parser = argparse.ArgumentParser(description='Quickly create a dataset.')
-parser.add_argument('--data-dir', type=str, help='The directory containing the processed dataset files.', required=True)
-parser.add_argument('--viz-dir', type=str, help='The directory to save viz configuration data.', required=True)
+parser.add_argument('--data-dir', type=str, help='The full path to the directory containing the processed dataset files.', required=True)
+parser.add_argument('--viz-dir', type=str, help='The full path to the directory to save viz configuration data.', required=True)
 parser.add_argument('--win-width', type=int, help='The width of the camera viewport.', required=True)
 parser.add_argument('--win-height', type=int, help='The height of the camera viewport.', required=True)
 parser.add_argument('--viz-width', type=int, help='The width of the 3d viz viewport.', default=600)
