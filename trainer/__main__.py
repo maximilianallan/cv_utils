@@ -57,7 +57,7 @@ if args.video_file:
     f = cap.read()
     if not f[0]:
       break
-    f = f[1]
+    f = t.predict(f[1])  
     
     if writer is not None:
       writer.write(f)
@@ -67,4 +67,8 @@ if args.video_file:
       
       if key == ord("q"):
         break
-      
+        
+     
+else:
+  for n, im in enumerate(t.images):
+    t.predict(im, "image_{0}.png".format(n))
