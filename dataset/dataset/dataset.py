@@ -4,6 +4,14 @@ import cv_utils.split.split as split
 import re
 import shutil
 
+def is_float(number):
+
+  try:
+    float(number)
+    return True
+  except:
+    return False
+
 def clear_directory(folder):
 
   for the_file in os.listdir(folder):
@@ -39,10 +47,18 @@ def check_output_dir(output_dir_path):
     else:
       input = raw_input("Unrecognised input. Please enter y to empty directory and continue and n to exit. ")
           
-        
+
+def clean_dir_end(path):
+
+  if path[-1] != '/':
+    path = path + '/'
+    
+  return path
+          
 def clean_win_path(win_path):
 
   return win_path.replace("\\","/")
+
 
 def add_trk_cfg(root_dir, joint, model_file = None, arm_offsets = None, base_offsets = None):
   
@@ -180,7 +196,7 @@ class BasicAppCfg(object):
       
 class TTrackAppCfg(BasicAppCfg):
 
-  def __init__(self, root_dir, output_dir, left_input_video, right_input_video, camera_cfg_file, window_dims, left_output_video, right_output_video, classifier_cfg_file, classifier_type, localizer_type, trackable_cfg_files ):
+  def __init__(self, root_dir, output_dir, left_input_video, right_input_video, camera_cfg_file, window_dims, left_output_video, right_output_video, classifier_cfg_file, classifier_type, localizer_type, trackable_cfg_files, trackable_starting_poses):
     
     """
     right now we assume the starting pose is identity/home
@@ -189,8 +205,9 @@ class TTrackAppCfg(BasicAppCfg):
     
     self.classifier_cfg_file = self.check_file(classifier_cfg_file, root_dir)
     self.classifier_type = self.check_classifier_type(classifier_type)
-    self.trackable_cfg_files = [self.check_file(fl) for fl in trackable_cfg_files]
+    self.trackable_cfg_files = [clean_win_path(self.check_file(fl)) for fl in trackable_cfg_files]
     self.localizer_type = self.check_localizer_type(localizer_type)
+    self.trackable_starting_poses = trackable_starting_poses
     
   def create(self):
   
@@ -211,18 +228,25 @@ class TTrackAppCfg(BasicAppCfg):
       f.write("\n# Detector \n")
       f.write("classifier-config={0}\n".format(self.classifier_cfg_file))
       f.write("classifier-type={0}\n".format(self.classifier_type))
+      if self.classifier_type == "MCRF":
+        f.write("num-labels=3\n")
+      else:
+        f.write("num-labels=2\n")
+        
       f.write("\n# Trackables \n")
-      for n,trck_file in enumerate(self.trackable_cfg_files):
+      for n,trck_file in enumerate(self.trackable_starting_poses):
         if n == 0:
-          f.write("trackable={0}\n".format(trck_file)) #only support one now
-        f.write("starting-pose-{0}=1 0 0 0 0 1 0 0 0 0 1 60 0 0 0 0\n".format(n))
+          f.write("trackable={0}\n".format(self.trackable_cfg_files[0])) #only support one now
+        #f.write("starting-pose-{0}=1 0 0 0 0 1 0 0 0 0 1 60 0 0 0 0\n".format(n))
+        f.write("starting-pose-{0}={1}\n".format(n, self.get_starting_pose(self.trackable_starting_poses[n])))
+        
       f.write("\n# Outputs \n")
       f.write("left-output-video={0}\n".format(self.left_output_video))
       f.write("right-output-video={0}\n".format(self.right_output_video))
       
   def check_classifier_type(self, classifier_type):
   
-    if classifier_type == "RF" or classifier_type == "SVM" or classifier_type == "NB":
+    if classifier_type == "RF" or classifier_type == "SVM" or classifier_type == "NB" or classifier_type == "MCRF":
       return classifier_type
     else:
       raise Exception("Error, " + classifier_type + " is not valid!\n")
@@ -234,6 +258,35 @@ class TTrackAppCfg(BasicAppCfg):
     else:
       raise Exception("Error, " + localizer_type + " is not valid!\n")
       
+      
+  def get_starting_pose(self, starting_pose_file):
+  
+    rval = "1 0 0 0 0 1 0 0 0 0 1 60 0 0 0"
+    with open(starting_pose_file, 'r') as f:
+        
+      try:
+        l = f.readlines()
+  
+        l = l[0:8]
+        l = [line.strip("\n").strip("|") for line in l]
+        l = [line.split(" ") for line in l]
+        se3_pose = [val for val in l[0] if is_float(val)] + [val for val in l[1] if is_float(val)] + [val for val in l[2] if is_float(val)]
+        arti_pose = [v[0] for v in l[-3:]]
+        
+        pose = se3_pose + arti_pose
+        
+        if len(pose) != 15:
+          raise Exception("")
+        
+        rval = " ".join(pose)
+                
+      except:
+        print ("Error setting pose automatically from SE3 file. Set this manually.")
+        pass
+        
+  
+    return rval
+  
 class VizAppCfg(BasicAppCfg):
 
   def __init__(self, root_dir, output_dir, left_input_video, right_input_video, camera_cfg_file, window_dims, left_output_video, right_output_video, viz_dims, num_trackables ):
