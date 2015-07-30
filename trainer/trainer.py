@@ -22,7 +22,8 @@ class Model(object):
     self.model.save(args,kwargs)
   
   def load(self, *args,**kwargs):
-    self.model.load(args,kwargs)
+    self.model.load(args[0])
+    print self.model
     
 class RandomForest(Model):
 
@@ -57,16 +58,10 @@ class SVM(Model):
    
 class Trainer(object):
 
-  def __init__(self, image_paths, mask_paths, classifier_type, num_labels = 2 ):
+  def __init__(self,  classifier_type, num_dims):
 
-    self.images = [cv2.imread(im_path) for im_path in image_paths] 
-    self.masks = [cv2.imread(mask_path,0) for mask_path in mask_paths]
-
-    self.num_examples = sum([im.shape[0]*im.shape[1] for im in self.images])
-    #self.num_dims = 7
-    self.num_dims = 4
-    #self.num_dims = 3
-    self.num_labels = num_labels
+    self.num_dims = num_dims
+    self.num_labels = 2
     
     if classifier_type == "rf":
       self.model = RandomForest()
@@ -76,6 +71,29 @@ class Trainer(object):
       self.model = BoostedClassifier()
     else:
       raise Exception("Error, unrecognised classifier")
+
+  def setup_training(self, image_paths, mask_paths, num_labels = 2):
+
+    tmp_images = [cv2.imread(im_path) for im_path in image_paths] 
+    tmp_masks = [cv2.imread(mask_path,0) for mask_path in mask_paths]
+    
+    self.images = []
+    self.masks = []
+    
+    for im, mask in zip(tmp_images, tmp_masks):
+      if im is None or mask is None:
+        pass
+      else:
+        self.images.append(im)
+        self.masks.append(mask)
+
+    if len(self.images) != len(self.masks):
+      raise Exception("Error, number of images files ({0}) does not match number of mask files ({1})! Exiting...\n".format(len(self.images), len(self.masks)))
+    if len(self.images) == 0:
+      raise Exception("Error, no files found! Exiting...\n")
+    
+    self.num_examples = sum([im.shape[0]*im.shape[1] for im in self.images])
+    self.num_labels = num_labels
     
   def convert_training(self):
 
@@ -207,14 +225,7 @@ class Trainer(object):
     vals = set(vals)
     return vals
     
-  def predict(self, image, save_path=None, model_path=None):
-
-    if self.model == None:
-      if model_path is None:
-        raise Exception("Error, no model loaded or specifier. Load one!\n")
-      else:
-        self.model = RandomForest()
-        self.model.load(model_path)
+  def predict(self, image):
 
     predictions = np.zeros(shape=(image.shape[0],image.shape[1],3),dtype=np.uint8)
 
@@ -262,8 +273,5 @@ class Trainer(object):
         else:
           raise Exception("Error, need more colors: {0} for data: {1} at pixel ({2},{3})".format(pred, data,r, c))
         #predictions[r,c] = 255 * self.rf.predict( data  )
-
-    if save_path is not None:
-      cv2.imwrite(save_path, predictions)
     
     return predictions

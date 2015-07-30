@@ -73,6 +73,8 @@ parser.add_argument('--cam', type=str, help='Camera calibration file.')
 parser.add_argument('--classifier', type=str, help='Pixel classifier file.')
 parser.add_argument('--interpolate', type=int, help='Interpolate the values for smoother motion.', default=1) 
 
+parser.add_argument('--classic', action='store_true', help="Sequence captured with classic da Vinci rather than DVRK", default=False)
+
 parser.add_argument('--stereo-split', action='store_true', help="Sequence recorded as a stereo feed in one file so needs splitting.")
 
 args = parser.parse_args()
@@ -100,11 +102,11 @@ else:
 
 #split the video and process the raw dv files
 try:
-  left_video_file, right_video_file, psm1_suj_file, psm1_j_file, psm2_suj_file, psm2_j_file, ecm_suj_file, ecm_j_file = process_raw_data(args.raw_dir, args.rigid_only, args.interpolate, args.stereo_split, args.psm1, args.psm2) 
+  left_video_file, right_video_file, psm1_suj_file, psm1_j_file, psm2_suj_file, psm2_j_file, ecm_suj_file, ecm_j_file = process_raw_data(args.raw_dir, args.rigid_only, args.interpolate, args.stereo_split, args.psm1, args.psm2, args.classic) 
 except Exception as e:
   print("\nError processing raw data: " + e.args[0])
   sys.exit(1)
-  
+
 #add the videos to the output directory
 mklink(left_video_file, args.output_dir)
 mklink(right_video_file, args.output_dir)

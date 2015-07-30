@@ -16,7 +16,28 @@ def isfloat(val):
   except:
     return False
 
-    
+def run_classic(both_infile, suj_outfile, j_outfile):
+
+  try:
+    with open(both_infile,"r") as infile:
+
+      suj_values = extract_all(infile, "ISI_SUJ_JOINT_VALUES")
+      infile.seek(0)
+      j_values = extract_all(infile, "ISI_JOINT_VALUES")
+      
+      with open(suj_outfile,"w") as outfile:
+        for val in suj_values:
+          
+          outfile.write(" ".join(val) + "\n")    
+      
+      with open(j_outfile,"w") as outfile:
+        for val in j_values:
+          outfile.write(" ".join(val) + "\n")
+          
+  except IOError:
+    print("\nError, could not find input file: {0}\n".format(suj_infile))
+    sys.exit(1)
+
     
 def run_dvrk(suj_infile, j_infile, suj_outfile, j_outfile, LINES_NUM, is_ecm = False):
   
@@ -100,6 +121,31 @@ def splitoncolon(line):
     sp = line.split(":")
     return "".join(sp[1:])
 
+def extract_all(infile, target):
+
+  lines = infile.read().split(target)[1:-1] #first value will not be useful
+  outputs = []
+  for line in [ l for l in lines if l != "" ]:
+    
+    line = line.replace("\r\n","\n")
+    line = line.strip("\n").split("\n")
+    
+    line = line[0:line.index("")] #get vals up to first empty
+    
+    single_line = []
+    
+    for n,l in enumerate(line):
+    
+    
+      l = splitoncolon(l)
+      
+      sp = " ".join([f for f in re.split("[ ,]",l) if f != ""])
+      
+      single_line.append(sp)
+  
+    outputs.append(single_line)
+  return outputs
+    
 def extract(infile, target):
 
   lines = infile.read().split(target)[1:-1] #first value will not be useful

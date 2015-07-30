@@ -103,7 +103,7 @@ def add_trk_cfg(root_dir, joint, model_file = None, arm_offsets = None, base_off
     f.write("output-se3-file={0}_se3.txt\n".format(joint.lower()))
     
 
-def process_raw_data(raw_data_dir, rigid_only, interpolate, split_video, use_psm1, use_psm2):
+def process_raw_data(raw_data_dir, rigid_only, interpolate, split_video, use_psm1, use_psm2, classic_capture):
 
   cwd = os.getcwd()
   
@@ -119,26 +119,47 @@ def process_raw_data(raw_data_dir, rigid_only, interpolate, split_video, use_psm
   
   if use_psm1:
     psm1_files = filter(lambda x : len(re.findall("psm1",x,re.IGNORECASE)) == 1, files)
-    if len(psm1_files) != 2:
-      raise Exception("Could not find the psm1 file in the raw data directory!\n")
+    if classic_capture:
+      if len(psm1_files) != 1:
+        raise Exception("Could not find the correct number of psm1 files in the raw data directory!\n")
+    else:
+      if len(psm1_files) != 2:
+        raise Exception("Could not find the correct number of psm1 files in the raw data directory!\n")
+        
     psm1_suj_file = filter(lambda x : len(re.findall("capture",x,re.IGNORECASE)) == 1, psm1_files)[0]
-    psm1_j_file = [j for j in psm1_files if j != psm1_suj_file][0]
-    parse.run_dvrk(psm1_suj_file, psm1_j_file, "psm1_suj.txt", "psm1_j.txt", len(open(psm1_j_file,"r").readlines()), False)
+    if classic_capture:
+      psm1_j_file = psm1_suj_file
+      parse.run_classic(psm1_suj_file, "psm1_suj.txt", "psm1_j.txt")
+    else:
+      psm1_j_file = [j for j in psm1_files if j != psm1_suj_file][0]
+      parse.run_dvrk(psm1_suj_file, psm1_j_file, "psm1_suj.txt", "psm1_j.txt", len(open(psm1_j_file,"r").readlines()), False)
   
   if use_psm2:
     psm2_files = filter(lambda x : len(re.findall("psm2",x,re.IGNORECASE)) == 1, files)  
-    if len(psm2_files) != 2:
-      raise Exception("Could not find the psm2 file in the raw data directory!\n")
+    if classic_capture:
+      if len(psm2_files) != 1:
+        raise Exception("Could not find the correct number of psm2 files in the raw data directory!\n")
+    else:
+      if len(psm2_files) != 2:
+        raise Exception("Could not find the correct number of psm2 files in the raw data directory!\n")
+        
     psm2_suj_file = filter(lambda x : len(re.findall("capture",x,re.IGNORECASE)) == 1, psm2_files)[0]
-    psm2_j_file = [j for j in psm2_files if j != psm2_suj_file][0]
-    parse.run_dvrk(psm2_suj_file, psm2_j_file, "psm2_suj.txt", "psm2_j.txt", len(open(psm2_j_file,"r").readlines()), False)  
+    if classic_capture:
+      psm2_j_file = psm2_suj_file
+      parse.run_classic(psm2_j_file, "psm2_suj.txt", "psm2_j.txt")
+    else:
+      psm2_j_file = [j for j in psm2_files if j != psm2_suj_file][0]
+      parse.run_dvrk(psm2_suj_file, psm2_j_file, "psm2_suj.txt", "psm2_j.txt", len(open(psm2_j_file,"r").readlines()), False)  
   
   
   ecm_file = filter(lambda x : len(re.findall("ecm",x,re.IGNORECASE)) == 1, files)
   if len(ecm_file) != 1:
-    raise Exception("Coulnd not find the ecm file in the raw data directory!\n")
+    raise Exception("Could not find the ecm file in the raw data directory!\n")
     
-  parse.run_dvrk(ecm_file[0], ecm_file[0], "ecm_suj.txt", "ecm_j.txt", len(open(psm1_j_file,"r").readlines()), True)
+  if classic_capture:
+    parse.run_classic(ecm_file[0], "ecm_suj.txt", "ecm_j.txt")
+  else:
+    parse.run_dvrk(ecm_file[0], ecm_file[0], "ecm_suj.txt", "ecm_j.txt", len(open(psm1_j_file,"r").readlines()), True)
    
   os.chdir(cwd)
   
@@ -253,7 +274,7 @@ class TTrackAppCfg(BasicAppCfg):
       
   def check_localizer_type(self, localizer_type):
   
-    if localizer_type == "PWP3D" or localizer_type == "Articulated" or localizer_type == "CompLS":
+    if localizer_type == "PWP3D" or localizer_type == "ArticulatedComponentLS" or localizer_type == "CompLS":
       return localizer_type
     else:
       raise Exception("Error, " + localizer_type + " is not valid!\n")

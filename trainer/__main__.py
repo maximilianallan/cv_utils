@@ -9,9 +9,6 @@ parser = argparse.ArgumentParser(description='Train a random forest with little 
 parser.add_argument('-t', '--training-data', nargs='+', type=str, help='The list of training data files.', required=True)
 parser.add_argument('-m', '--masks', nargs='+', type=str, help='The list of mask files. Order should be the same as training data.', required=True)
 parser.add_argument('-n', '--num-labels', type=int, help='The number of labels we are using. This is for sanity checking against the number of labels found in mask files. Defaults to 2.', default=2)
-parser.add_argument('-v', '--video-file', type=str, help='Video file to test the trained classifier on. Leave blank to just test on the training data.')
-parser.add_argument('-s', '--save-file', type=str, help='File to save the output video. Leave blank to display in window.')
-
 
 args = parser.parse_args()
 
@@ -33,42 +30,9 @@ for f,g in zip(args.training_data, args.masks):
     parser.print_help()
     exit(1)
        
-  
-t = Trainer(args.training_data, args.masks, "rf", args.num_labels)
+t = Trainer("rf", args.num_labels)
+t.setup_training(args.training_data, args.masks)
 t.train()
 
-if args.video_file:
-
-  cap = cv2.VideoCapture(args.video_file)
-  if args.save_file:
-    writer = cv2.VideoWriter(args.save_file, cv2.cv.FOURCC(*"DIB "),
-    int(cap.get(cv2.cv.CV_CAP_PROP_FPS)),
-    ( int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)),
-      int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)))
-    )
-  else:
-    writer = None
-    cv2.namedWindow("Output")
-    print("\nRunning video. Use 'q' to quit.\n")
-  
-  
-  
-  while True:
-    f = cap.read()
-    if not f[0]:
-      break
-    f = t.predict(f[1])  
-    
-    if writer is not None:
-      writer.write(f)
-    else:
-      cv2.imshow("Output", f)
-      key = cv2.waitKey(20) & 255
-      
-      if key == ord("q"):
-        break
-        
-     
-else:
-  for n, im in enumerate(t.images):
+for n, im in enumerate(t.images):
     t.predict(im, "image_{0}.png".format(n))
