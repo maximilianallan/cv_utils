@@ -30,9 +30,10 @@ for f,g in zip(args.training_data, args.masks):
     parser.print_help()
     exit(1)
        
-t = Trainer("rf", args.num_labels)
-t.setup_training(args.training_data, args.masks)
+t = Trainer("rf", 4)
+t.setup_training(args.training_data, args.masks, args.num_labels)
 t.train()
 
 for n, im in enumerate(t.images):
-    t.predict(im, "image_{0}.png".format(n))
+    p = t.predict(im)
+    cv2.imwrite("image_{0}.png".format(n),p)

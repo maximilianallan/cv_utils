@@ -102,7 +102,7 @@ class Trainer(object):
     for n,image in enumerate(self.images):
    
       resolution = image.shape[0] * image.shape[1]
-   
+      
       start_index = n * resolution
       end_index = ((n+1) * resolution)
    
@@ -125,7 +125,7 @@ class Trainer(object):
           red = image[:,:,0]
           green = image[:,:,1]
           blue = image[:,:,2]
-              
+             
         training_data[start_index:end_index,0] = hue.reshape((resolution,)).astype(np.float32, casting='safe')
         training_data[start_index:end_index,1] = sat.reshape((resolution,)).astype(np.float32, casting='safe')
         training_data[start_index:end_index,2] = o2.reshape((resolution,)).astype(np.float32, casting='safe')
