@@ -1,11 +1,11 @@
 import cv2
 import numpy as np
 import sys
-sys.path.append("z:/cv_utils")
 import argparse
-from recolor import ColorSpace
+from cv_utils.recolor import ColorSpace
 from trainer import RandomForest, Trainer
 
+import os
 
 parser = argparse.ArgumentParser(description='Test a random forest with little fuss.')
 
@@ -30,15 +30,47 @@ t.model.model.load(args.model_file)
 #if f[0] == False:
 #break
 #f = f[1]
+def predict_and_save(filename, model, outdir = None):
 
-for file in args.test_data:  
-  
-  f = cv2.imread(file)
+  f = cv2.imread(filename)
   if f is None:
-    continue
+    return
   
-  p = t.predict(f)
+  print "Predicting"
+  p = model.predict(f)
   
-  cv2.imwrite(file.replace(".","_test."),p)
+  print "Done predicting"
+  if outdir is not None:
+    cv2.imwrite(outdir + "/" + filename,p)
+    print outdir + "/" + filename
+  else:
+    cv2.imwrite(filename.replace(".","_output."),p)
+
   
+  
+for file in args.test_data:  
+
+  if os.path.isdir(file):
+    
+    cwd = os.getcwd()
+    os.chdir(file)
+      
+    outdir = "output"
+    try:
+      os.mkdir(outdir)
+    except OSError:
+      pass    
+    
+    for nfile in os.listdir("."):
+      
+      predict_and_save(nfile, t, outdir + "/")
+    
+    os.chdir(cwd)
+    
+  else:
+  
+    predict_and_save(file, t)
+  
+  
+    
   

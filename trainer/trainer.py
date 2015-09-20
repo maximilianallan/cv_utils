@@ -33,7 +33,7 @@ class RandomForest(Model):
     self.name = "RF"
     
   def setup_params(self):
-    self.params = dict(term_crit=(cv2.TERM_CRITERIA_MAX_ITER,1,1) )
+    self.params = dict(term_crit=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER ,10,0.001) )
   
 class BoostedClassifier(Model):
   def __init__(self):

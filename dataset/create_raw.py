@@ -89,7 +89,7 @@ if not os.path.isabs(args.output_dir):
   args.print_help()
   sys.exit(1)
   
-if not os.path.isabs(args.model):
+if args.model and not os.path.isabs(args.model):
   print("Error, model json file path should be absolute.\n")
   args.print_help()
   sys.exit(1)
