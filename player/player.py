@@ -72,8 +72,9 @@ class VideoPlayer:
     def load_new(self):
 
       frame = self.video_file.read()
+      
       if frame[0] is False:
-        print "Done"
+        print "Done reading"
         return False
 
       frame = frame[1]
@@ -83,6 +84,7 @@ class VideoPlayer:
         pose = read_pose(self.poses_file)
 
       except Exception as e:
+        print e.args
         print "Done"
         return False
 
@@ -107,26 +109,50 @@ def clean_line(pose_line):
   pose_line = pose_line.strip(" ")
   vals = pose_line.split(" ")
   
-  return map(float, vals)
+  fvals = []
+  for v in vals:
+    try:
+      fvals.append(float(v))
+    except:
+      pass
+  
+  return fvals
       
 def read_pose(pose_file):
 
-  #read 9 lines
-  l1 = clean_line(pose_file.readline())
-  l2 = clean_line(pose_file.readline())
-  l3 = clean_line(pose_file.readline())
-  pose_file.readline()
-  pose_file.readline()
-  
-  a1 = float(pose_file.readline().strip("\n"))
-  a2 = float(pose_file.readline().strip("\n"))
-  a3 = float(pose_file.readline().strip("\n"))
-  pose_file.readline()
-
   gl_pose = np.eye(4,4,dtype=np.float32)
-  gl_pose[0,:] = l1
-  gl_pose[1,:] = l2
-  gl_pose[2,:] = l3
+  a1 = 0
+  a2 = 0
+  a3 = 0
+  
+  try:
+    #read 9 lines
+    l1_f = pose_file.readline()
+    l2_f = pose_file.readline()
+    l3_f = pose_file.readline()
+    
+    l1 = clean_line(l1_f)
+    l2 = clean_line(l2_f)
+    l3 = clean_line(l3_f)
+    
+    pose_file.readline()
+    pose_file.readline()
+    
+    a1_f = pose_file.readline().strip("\n")
+    a2_f = pose_file.readline().strip("\n")
+    a3_f = pose_file.readline().strip("\n")
+    
+    a1 = float(a1_f)
+    a2 = float(a2_f)
+    a3 = float(a3_f)
+    pose_file.readline()
+    
+    
+    gl_pose[0,:] = l1
+    gl_pose[1,:] = l2
+    gl_pose[2,:] = l3
+  except Exception as e:
+    pass
 
   return (gl_pose,[a1,a2,a3])
 

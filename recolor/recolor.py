@@ -1,3 +1,4 @@
+from cv2 import imread, COLORMAP_HSV, COLOR_BGR2HSV, imwrite, applyColorMap
 import cv2
 import argparse
 import numpy as np
@@ -7,7 +8,7 @@ class ColorSpace:
     def __init__(self,image_path=None,image=None):
 
         if image_path is not None:
-            self.image = cv2.imread(image_path,1)
+            self.image = imread(image_path,1)
         elif image is not None:
             self.image = image
         try:    
@@ -38,16 +39,16 @@ class ColorSpace:
         if apply_colormap == False:
           return i
         else:
-          return cv2.applyColorMap(i,cv2.COLORMAP_HSV)
+          return cv2.applyColorMap(i,COLORMAP_HSV)
             
     def get_hue(self):
         
-        hsv = cv2.cvtColor(self.image,cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(self.image,COLOR_BGR2HSV)
         return hsv[:,:,0].astype(np.float32)
 
     def get_sat(self):
 
-        hsv = cv2.cvtColor(self.image,cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(self.image,COLOR_BGR2HSV)
         return hsv[:,:,1].astype(np.float32)
     
     def get_o2(self):
@@ -90,6 +91,6 @@ if __name__ == '__main__':
     csp = ColorSpace(image_path)
     i = csp.process(colorspace)
  
-    hm = cv2.applyColorMap(i,cv2.COLORMAP_HSV)
-    cv2.imwrite(colorspace+".png",hm)
+    hm = applyColorMap(i,cv2.COLORMAP_HSV)
+    imwrite(colorspace+".png",hm)
     

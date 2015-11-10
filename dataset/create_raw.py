@@ -81,17 +81,17 @@ args = parser.parse_args()
 
 if not os.path.isabs(args.raw_dir):
   print("Error, raw directory path should be absolute.\n")
-  args.print_help()
+  parser.print_help()
   sys.exit(1)
   
 if not os.path.isabs(args.output_dir):
   print("Error, output directory path should be absolute.\n")
-  args.print_help()
+  parser.print_help()
   sys.exit(1)
   
 if args.model and not os.path.isabs(args.model):
   print("Error, model json file path should be absolute.\n")
-  args.print_help()
+  parser.print_help()
   sys.exit(1)
 
 #check if the output directory exists, if not then create it.

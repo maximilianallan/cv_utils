@@ -17,12 +17,15 @@ if __name__ == '__main__':
   bpf = VideoPlayer(args.video_file, args.pose_file, args.image_file)
 
   if args.auto:
-
+  
     min_diff = 99999999
     best_image = None
     best_pose = None
-
+    best_frame_idx = 0
+    current_frame_idx = 0
+    
     while True:
+      
       if not bpf.load_new():
         break
       diff = compare_images(bpf.get_current_frame(), bpf.image)
@@ -30,13 +33,17 @@ if __name__ == '__main__':
         min_diff = diff
         best_image = bpf.get_current_frame()
         best_pose = bpf.get_current_pose()
-
+        best_frame_idx = current_frame_idx
+    
+      current_frame_idx += 1
+    
     if best_image is not None:
-      print("Found match with average distance: {0}!".format(min_diff))
-      cv2.namedWindow("Match")
-      cv2.imshow("Match", combine_images(best_image, bpf.image))
-      print best_pose
-      cv2.waitKey(-1)
+      print("Average distance: {0}".format(min_diff))
+      print("Found match at frame: {0}".format(best_frame_idx))
+      print(best_pose)
+      #cv2.namedWindow("Match")
+      #cv2.imshow("Match", combine_images(best_image, bpf.image))
+      #cv2.waitKey(-1)
 
 
 
