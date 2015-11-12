@@ -24,11 +24,11 @@ while ischar(tline)
   
   rotations = quaternion(nums(estimates_rotation_start_idx:estimates_rotation_end_idx));
   %[angle,axis] = rotations.AngleAxis();
-  [roll,pitch,yaw] = rotations.EulerAngles('123');
-
+  eulers = rotations.EulerAngles('123');
+  
   %'rotation', [angle,axis'], ...
   estimates(n) = struct('translation', nums(estimates_translation_start_idx:estimates_translation_end_idx),...
-  'rotation', [roll,pitch,yaw], ...
+  'rotation', abs(eulers)', ...
   'articulation',nums(estimates_articulated_start_idx:estimates_articualted_end_idx));
   tline = fgetl(estimates_file);
   
@@ -81,7 +81,7 @@ while ischar(tline)
   %try
   rotations = quaternion.rotationmatrix(R);
   %[angle,axis] = rotations.AngleAxis();
-  [roll,pitch,yaw] = rotations.EulerAngles('123');
+  eulers = rotations.EulerAngles('123');
   %catch
   %  disp(R)
   %  disp(det(R));
@@ -91,7 +91,7 @@ while ischar(tline)
   try
     %'rotation', [angle,axis'], ...
     ground_truth(n) = struct('translation', [t1(4),t2(4),t3(4)] ,...
-    'rotation', [roll,pitch,yaw], ...
+    'rotation', abs(eulers)', ...
     'articulation',[a1,a2,a3]);
   catch
     disp(t1)

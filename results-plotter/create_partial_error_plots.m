@@ -11,7 +11,7 @@ for i = 1:num_frames
         r_error(i) = pdist([estimates(1,i).rotation;ground_truth(1,i).rotation]);
         roll_error(i) = pdist([estimates(1,i).rotation(1);ground_truth(1,i).rotation(1)]);
         pitch_error(i) = pdist([estimates(1,i).rotation(2);ground_truth(1,i).rotation(2)]);
-        pitch_error(i) = pdist([estimates(1,i).rotation(3);ground_truth(1,i).rotation(3)]);
+        yaw_error(i) = pdist([estimates(1,i).rotation(3);ground_truth(1,i).rotation(3)]);
         %e = estimates(1,i).rotation(2:4)/norm(estimates(1,i).rotation(2:4));
         %g = (ground_truth(1,i).rotation(2:4)/norm(ground_truth(1,i).rotation(2:4)))';
         
@@ -30,7 +30,7 @@ for i = 1:num_frames
         r_error_comparison(i) = pdist([comparison(1,i).rotation;ground_truth(1,i).rotation]);
         roll_error_comparison(i) = pdist([comparison(1,i).rotation(1);ground_truth(1,i).rotation(1)]);
         pitch_error_comparison(i) = pdist([comparison(1,i).rotation(2);ground_truth(1,i).rotation(2)]);
-        pitch_error_comparison(i) = pdist([comparison(1,i).rotation(3);ground_truth(1,i).rotation(3)]);
+        yaw_error_comparison(i) = pdist([comparison(1,i).rotation(3);ground_truth(1,i).rotation(3)]);
         
         %e_comparison = comparison(1,i).rotation(2:4)/norm(comparison(1,i).rotation(2:4));
         %g = (ground_truth(1,i).rotation(2:4)/norm(ground_truth(1,i).rotation(2:4)))';
@@ -89,15 +89,8 @@ fprintf(f,'\n');
 
 fclose(f);
 
-plot_partial_vals([t_error;t_error_comparison], 'Translation error', 'Distance (mm)', {estimates_method_name, comparison_method_name}, strcat(save_dir,'/translation_error.pdf'));
-%make_box_plot([t_error;t_error_comparison], 'Translation error', 'Distance (mm)', {{'',''}, {estimates_method_name, comparison_method_name}}, strcat(save_dir,'/translation_error_box.pdf'));
+plot_partial_vals({t_error,t_error_comparison}, 'Translation error', 'Distance (mm)', {estimates_method_name, comparison_method_name}, strcat(save_dir,'/translation_error.pdf'));
 
-plot_vals([r_error;r_error_comparison], 'Rotation error', 'Distance (rads)', {estimates_method_name, comparison_method_name}, strcat(save_dir,'/rotation_error.pdf'));
-%make_box_plot([r_error;r_error_comparison], 'Rotation error', 'Distance (rads)', {{'',''}, {estimates_method_name, comparison_method_name}}, strcat(save_dir,'/rotation_error_box.pdf'));
+plot_partial_vals({r_error,r_error_comparison}, 'Rotation error', 'Distance (rads)', {estimates_method_name, comparison_method_name}, strcat(save_dir,'/rotation_error.pdf'));
 
-%plot_vals([r_axis_error;r_axis_error_comparison;], 'Rotation axis error', 'Distance (radians)', {strcat('Axis error ',estimates_method_name), strcat('Axis error ', comparison_method_name)}, strcat(save_dir,'/rotation_axis_error.pdf'));
-%plot_vals([r_angle_error;r_angle_error_comparison;], 'Rotation angle error', 'Distance (radians)', {strcat('Angle error ', estimates_method_name), strcat('Angle error ', comparison_method_name)}, strcat(save_dir,'/rotation_angle_error.pdf'));
-
-%make_box_plot([r_axis_error;r_axis_error_comparison], 'Rotation axis error', 'Distance (rads)', {{'',''}, {estimates_method_name, comparison_method_name}}, strcat(save_dir,'/rotation_axis_error_box.pdf'));
-%make_box_plot([r_angle_error;r_angle_error_comparison], 'Rotation angle error', 'Distance (rads)', {{'',''}, {estimates_method_name, comparison_method_name}}, strcat(save_dir,'/rotation_angle_error_box.pdf'));
 end

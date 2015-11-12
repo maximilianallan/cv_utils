@@ -23,8 +23,8 @@ for i = 1:num_frames
   z_comparison(i) = comparison(i).translation(3);
 end
 
-plot_vals([x_estimates;x_comparison;x_ground_truth], 'Translation x', 'Position (mm)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_x.pdf'));
-plot_vals([y_estimates;y_comparison;y_ground_truth], 'Translation y', 'Position (mm)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_y.pdf'));
-plot_vals([z_estimates;z_comparison;z_ground_truth], 'Translation z', 'Position (mm)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_z.pdf'));
+plot_vals({x_estimates,x_comparison,x_ground_truth}, 'Translation x', 'Position (mm)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_x.pdf'));
+plot_vals({y_estimates,y_comparison,y_ground_truth}, 'Translation y', 'Position (mm)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_y.pdf'));
+plot_vals({z_estimates,z_comparison,z_ground_truth}, 'Translation z', 'Position (mm)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_z.pdf'));
 
 end

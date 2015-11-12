@@ -1,12 +1,12 @@
 function [] = plot_partial_vals(vals, fig_title, y_axis_label, legend_labels, save_path)
 
-num_plots = size(vals,1);
+num_plots = size(vals,2);
 if num_plots > 1
   assert(num_plots == size(legend_labels,2));
 end
 
 if isequal(exist('label_colors','var'),0)
-  label_colours = {'r','b','g','c','m','y'};
+  label_colours = {'b','r','m','c','g','y'};
 end
 
 f = figure;
@@ -18,7 +18,10 @@ end
 title(fig_title);
 xlabel('Frame no.');
 ylabel(y_axis_label);
-if num_plots > 1
+%  || strcmp(fig_title,'Translation z')
+if (strcmp(fig_title,'Translation x'))&& num_plots > 1
+  legend(legend_labels,'Location','southwest');    
+elseif num_plots > 1
   legend(legend_labels,'Location','northwest');
 end
 

@@ -12,6 +12,7 @@ if __name__ == '__main__':
   parser.add_argument('--skip-frames', type=int, help='', default=0)
   parser.add_argument('--method-name', type=str, help='The name of the method we are testing', required=True)
   parser.add_argument('--comparison-method-name', type=str, help='The name of the method we are comparing against', required=True)
+  parser.add_argument('--skip-first-100', dest='skip_first_100', action='store_true')
 
   args = parser.parse_args()
 
@@ -30,13 +31,14 @@ if __name__ == '__main__':
 
     #output_directory = os.path.dirname(args.my_method_file)
 
-    mlab_args = "\'{0}\' {1} \'{2}\' \'{3}\' \'{4}\' \'{5}\' \'{6}\'".format(args.output_dir, args.skip_frames, args.my_method_file, args.ground_truth_file, args.comparison_file, args.method_name, args.comparison_method_name)
+    mlab_args = "\'{0}\' {1} \'{2}\' \'{3}\' \'{4}\' \'{5}\' \'{6}\' {7}".format(args.output_dir, args.skip_frames, args.my_method_file, args.ground_truth_file, args.comparison_file, args.method_name, args.comparison_method_name, int(args.skip_first_100))
     to_run = "{0} {1}".format("process_results", mlab_args)
 
     os.chdir("C:/Users/max/libs/cv_utils/results-plotter/")
 
     #it
     p = subprocess.Popen("matlab -nodisplay -nosplash -nodesktop -r \"{0}\"".format(to_run), shell=True)
+
     p.wait()
 
   except Exception as e:
