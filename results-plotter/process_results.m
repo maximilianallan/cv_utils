@@ -7,8 +7,8 @@ close all;
 [comparison,~] = open_and_read(original_method_file, ground_truth_file);
 
 if(skip_first_100 == 1)
-   estimates = estimates(101:size(estimates,2));
-   ground_truth = ground_truth(101:size(ground_truth,2));
+   %estimates = estimates(81:size(estimates,2));
+   ground_truth = ground_truth(59:size(ground_truth,2));
 elseif (size(comparison,2) ~= size(estimates,2))
     warning('number of frames is not equal!');    
 %    if (size(comparison,2) > size(estimates,2))
@@ -57,7 +57,7 @@ else
     num_frames_ground_truth = size(ground_truth,2);
 
     if (num_frames > num_frames_ground_truth)
-        num_frames = num_frames_alt;
+        num_frames = num_frames_ground_truth;
     end
 
     val = str2num(start_frame) + 1;
