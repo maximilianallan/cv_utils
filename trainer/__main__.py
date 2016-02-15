@@ -1,5 +1,6 @@
 from trainer import Trainer
 from sys import exit
+
 import cv2
 import argparse
 import os

@@ -10,6 +10,7 @@ from recolor import ColorSpace
 
 import gc
 
+"""
 def build_filters():
     filters = []
     ksize = 31
@@ -25,7 +26,7 @@ def process(img, filters):
         fimg = cv2.filter2D(img, cv2.CV_8UC3, kern)
         np.maximum(accum, fimg, accum)
     return accum
-
+"""
 
 class Model(object):
 
