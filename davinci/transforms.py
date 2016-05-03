@@ -48,7 +48,15 @@ def mult_matrix(A, B):
     print B
     print A
     raise e
-    
+
+class Transform:
+
+  def __init__(self, t4x4):
+
+    self.rotation = t4x4[0:3,0:3]
+    self.translation = t4x4[0:3,3]
+
+
 class DaVinciClassicArm:
 
   def __init__(self):
@@ -57,15 +65,32 @@ class DaVinciClassicArm:
     self.suj_origin_to_suj_tip = []
     self.suj_tip_to_psm_origin = []
     self.psm_origin_to_psm_tip = []
-    
-    
+
+  def get_transforms(self):
+
+    for t in self.world_to_suj_origin + self.suj_origin_to_suj_tip + self.suj_tip_to_psm_origin + self.psm_origin_to_psm_tip:
+      yield Transform(t)
+
+class DaVinciMTM:
+
+  def __init__(self):
+  
+    self.mtm_base_to_mtm_tip = []
+
+  def get_transforms(self):
+
+    for mtm_t in self.mtm_base_to_mtm_tip:
+      yield Transform(mtm_t)
+
 class DaVinciClassicRobot:
 
   def __init__(self):
     self.create_psm1()
     self.create_psm2()
     self.create_ecm()
-  
+    self.mtml = self.create_mtm()
+    self.mtmr = self.create_mtm()
+
   def create_psm1(self):
   
     self.psm1 = DaVinciClassicArm()
@@ -189,10 +214,40 @@ class DaVinciClassicRobot:
     matrix[1,3] = -sa * d
     matrix[2,3] = ca * d
     matrix[3,3] = 1.0
- 
+
+  def get_kinematic_chain_psm(self, psm, suj_data, j_data):
+
+    import cv2
+    A = np.eye(4, dtype=np.float32)
+    A = self.extendChain(psm.world_to_suj_origin[0], A)
+    chain = [copy.deepcopy(A)]
+
+    for su_joint, su_joint_data in zip(psm.suj_origin_to_suj_tip, suj_data):
+      A = self.extendChain(su_joint, A, su_joint_data)
+      chain.append(copy.deepcopy(A))
+
+    A = self.extendChain(psm.suj_tip_to_psm_origin[0], A)
+    chain.append(copy.deepcopy(A))
+
+    for i in range(len(psm.psm_origin_to_psm_tip)-1):
+
+      A = self.extendChain(psm.psm_origin_to_psm_tip[i], A, j_data[i])
+      chain.append(copy.deepcopy(A))
+      if i == 3:
+        roll = copy.deepcopy(A)
+      elif i == 4:
+        wrist_pitch = copy.deepcopy(A)
+      elif i == 5:
+        wrist_yaw = copy.deepcopy(A)
+
+    A = self.extendChain(psm.psm_origin_to_psm_tip[6], A, 0)
+    chain.append(copy.deepcopy(A))
+
+    return chain
+
   def buildKinematicChainPSM(self, psm, suj_data, j_data):
     
-    import  cv2
+    import cv2
     A = np.eye(4, dtype=np.float32)
     
     A = self.extendChain(psm.world_to_suj_origin[0], A)
@@ -250,7 +305,126 @@ class DaVinciClassicRobot:
       A = self.extendChain(joint, A, joint_data)
       
     return A
-  
+
+  def create_mtm(self):
+
+    l_arm = 0.2794
+    l_forearm1 = 0.3948
+    l_forearm2 = 0.0597
+    h = 0.1506
+    l4 = 0 # unsure if this should be zero.
+
+    mtm = DaVinciMTM()
+    mtm.mtm_base_to_mtm_tip.append( DHFrame("ROTARY", 0, 0 , 0, PI_2 ))  # outer yaw
+    mtm.mtm_base_to_mtm_tip.append( DHFrame("ROTARY", 0, 0 , 0, -PI_2 )) # outer pitch 1
+    mtm.mtm_base_to_mtm_tip.append( DHFrame("ROTARY", -l_arm, 0 , 0, 0 )) # outer pitch 2
+    mtm.mtm_base_to_mtm_tip.append( DHFrame("FIXED", -l_forearm1, 0 , 0, 0 )) # forearm
+    mtm.mtm_base_to_mtm_tip.append( DHFrame("ROTARY", -l_forearm2, PI_2 , h, 0 )) # setup joint
+    mtm.mtm_base_to_mtm_tip.append( DHFrame("ROTARY", 0, -PI_2 , 0, 0 )) # wrist pitch
+    mtm.mtm_base_to_mtm_tip.append( DHFrame("ROTARY", 0, PI_2 , 0, PI_2 )) # wrist yaw
+    mtm.mtm_base_to_mtm_tip.append( DHFrame("ROTARY", 0, PI_2 , l4, 0 )) # wrist roll
+    return mtm
+
+  def get_kinematic_chain_mtm(self, mtm, mtm_data):
+
+    A = np.eye(4, dtype=np.float32)
+    chain = []
+
+    A = self.extendChain(mtm.mtm_base_to_mtm_tip[0], A, delta=mtm_data[0])
+    chain.append(copy.deepcopy(A))
+    A = self.extendChain(mtm.mtm_base_to_mtm_tip[1], A, delta=mtm_data[1])
+    chain.append(copy.deepcopy(A))
+    A = self.extendChain(mtm.mtm_base_to_mtm_tip[2], A, delta=mtm_data[2]-mtm_data[1])
+    chain.append(copy.deepcopy(A))
+    A = self.extendChain(mtm.mtm_base_to_mtm_tip[3], A) # fixed joint
+    chain.append(copy.deepcopy(A))
+    A = self.extendChain(mtm.mtm_base_to_mtm_tip[4], A, delta=mtm_data[3])
+    chain.append(copy.deepcopy(A))
+    A = self.extendChain(mtm.mtm_base_to_mtm_tip[5], A, delta=mtm_data[4])
+    chain.append(copy.deepcopy(A))
+    A = self.extendChain(mtm.mtm_base_to_mtm_tip[6], A, delta=mtm_data[5])
+    chain.append(copy.deepcopy(A))
+    A = self.extendChain(mtm.mtm_base_to_mtm_tip[7], A, delta=mtm_data[6])
+    chain.append(copy.deepcopy(A))
+    return chain
+
+
+
+  def plot_transforms(self, subplot, arm_transforms):
+
+    for transform in arm_transforms:
+
+      axis_size = 50
+
+      start = np.dot(transform, np.asarray([-axis_size, 0, 0, 1]))
+      end = np.dot(transform,np.asarray([axis_size, 0, 0, 1]))
+
+      top = np.dot(transform,np.asarray([0, axis_size, 0, 1]))
+      bottom = np.dot(transform,np.asarray([0, -axis_size , 0, 1]))
+
+      left = np.dot(transform, np.asarray([0, 0, axis_size, 1]))
+      right = np.dot(transform, np.asarray([0, 0, -axis_size, 1]))
+
+      #sys.exit(0)
+
+      subplot.plot(xs = [start[0],transform[0,3], end[0], transform[0,3], left[0], transform[0,3], right[0], transform[0,3], bottom[0], transform[0,3], top[0]],
+                   ys = [start[1],transform[1,3], end[1], transform[1,3], left[1], transform[1,3], right[1], transform[1,3], bottom[1], transform[1,3], top[1]],
+                   zs = [start[2],transform[2,3], end[2], transform[2,3], left[2], transform[2,3], right[2], transform[2,3], bottom[2], transform[2,3], top[2]]
+                   )
+
+      #break
+
+  def grab_new_values(self, i):
+
+    #grab the values from ros
+
+    mtml_data = np.zeros(shape=(8,), dtype=np.float32)
+    mtmr_data = np.zeros(shape=(8,), dtype=np.float32)
+    psm1_j_data = np.zeros(shape=(7,), dtype=np.float32)
+    psm2_j_data = np.zeros(shape=(7,), dtype=np.float32)
+    psm1_suj_data = np.zeros(shape=(6,), dtype=np.float32)
+    psm2_suj_data = np.zeros(shape=(6,), dtype=np.float32)
+
+    mtml_chain = self.get_kinematic_chain_mtm(self.mtml, mtml_data)
+    mtmr_chain = self.get_kinematic_chain_mtm(self.mtmr, mtmr_data)
+
+    psm1_chain = self.get_kinematic_chain_psm(self.psm1, psm1_suj_data, psm1_j_data)
+    psm2_chain = self.get_kinematic_chain_psm(self.psm2, psm2_suj_data, psm2_j_data)
+
+    self.plot_transforms(self.mtml_subplot, mtml_chain)
+    self.plot_transforms(self.mtmr_subplot, mtmr_chain)
+    self.plot_transforms(self.psm1_subplot, psm1_chain)
+    self.plot_transforms(self.psm2_subplot, psm2_chain)
+
+  def set_plot_limits(self, subplot):
+
+    subplot.set_xlim3d( -1000, 1000 )
+    subplot.set_ylim3d( -1000, 1000 )
+    subplot.set_zlim3d( -1000, 1000 )
+
+  def viz_robot(self):
+
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D # needed or the projection=3d will fail
+    import matplotlib.animation as animation
+
+    figure = plt.figure(figsize=(15,15),facecolor='white')
+
+    self.mtml_subplot = plt.subplot2grid((2,2), (0,0), 1, 1, projection='3d')
+    self.mtmr_subplot = plt.subplot2grid((2,2), (0,1), 1, 1, projection='3d')
+    self.psm1_subplot = plt.subplot2grid((2,2), (1,0), 1, 1, projection='3d')
+    self.psm2_subplot = plt.subplot2grid((2,2), (1,1), 1, 1, projection='3d')
+
+    self.set_plot_limits(self.mtml_subplot)
+    self.set_plot_limits(self.mtmr_subplot)
+    self.set_plot_limits(self.psm1_subplot)
+    self.set_plot_limits(self.psm2_subplot)
+
+    ani = animation.FuncAnimation(figure, self.grab_new_values, frames = 4000)
+    plt.show()
+    #ani.save('./poseplotter/output/vid2.avi',fps=10,clear_temp=False)
+
+
 if __name__ == '__main__':
 
   robot = DaVinciClassicRobot()

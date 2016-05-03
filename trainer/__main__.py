@@ -31,7 +31,7 @@ for f,g in zip(args.training_data, args.masks):
     parser.print_help()
     exit(1)
        
-t = Trainer("rf", 4)
+t = Trainer("rf", 12)
 t.setup_training(args.training_data, args.masks, args.num_labels)
 t.train(args.output_file)
 

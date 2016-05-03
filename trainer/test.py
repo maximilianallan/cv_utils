@@ -1,5 +1,5 @@
-import sys
-sys.path.insert(0, r"C:\sdks\opencv\build-x64\lib\Release")
+#import sys
+#sys.path.insert(0, r"C:\sdks\opencv\build-x64\lib\Release")
 
 from trainer import Trainer
 from sys import exit

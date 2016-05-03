@@ -10,7 +10,13 @@ from recolor import ColorSpace
 
 import gc
 
-"""
+all_features = ["red","green","blue","hue","sat","value","L","a","b","o1","o2","gabor"]
+#features = ["red","a","b"]
+features = ["hue","sat","o1","o2"]
+
+def get_index(feature):
+    return features.index(feature)
+
 def build_filters():
     filters = []
     ksize = 31
@@ -23,10 +29,10 @@ def build_filters():
 def process(img, filters):
     accum = np.zeros_like(img)
     for kern in filters:
-        fimg = cv2.filter2D(img, cv2.CV_8UC3, kern)
+        fimg = cv2.filter2D(img, cv2.CV_32FC3, kern)
         np.maximum(accum, fimg, accum)
     return accum
-"""
+
 
 class Model(object):
 
@@ -141,18 +147,15 @@ class Trainer(object):
     
     def convert_training(self):
 
+        self.num_dims = len(features)
+
         import time
 
         print("Allocating {0} bytes of training data\n".format(self.num_examples*4*self.num_dims))
         training_data = np.zeros(shape=(self.num_examples,self.num_dims),dtype=np.float32)
    
-        if self.num_dims == 3:
-          print("Using RGB features")
-        elif self.num_dims == 4:
-          print("Using HSo1o2 features")
-        elif self.num_dims == 7:
-          print("Using HSo1o2RGB features")        
-   
+
+
         for n,image_path in enumerate(self.image_paths):
 
             image = cv2.imread(image_path)
@@ -160,7 +163,8 @@ class Trainer(object):
       
             start_index = n * resolution
             end_index = ((n+1) * resolution)
-   
+
+            """
             if self.num_dims == 3:
                 red = image[:,:,0]
                 green = image[:,:,1]
@@ -193,6 +197,62 @@ class Trainer(object):
             #image_gray = cv2.imread(image_path,0)
             #gabor_vals = process(image_gray, filters)
             #training_data[start_index:end_index,self.num_dims] = gabor_vals.reshape((resolution,)).astype(np.float32, casting='safe')
+        """
+
+            cs = ColorSpace(image=image)
+            red = cs.get_red()
+            green = cs.get_green()
+            blue = cs.get_blue()
+            hue = cs.get_hue()
+            sat = cs.get_sat()
+            value = cs.get_value()
+            o1 = cs.get_o1()
+            o2 = cs.get_o2()
+            gabor = cs.get_gabor()
+            l = cs.get_cielab_l()
+            a = cs.get_cielab_a()
+            b = cs.get_cielab_b()
+
+            if "red" in features:
+                training_data[start_index:end_index,get_index("red")] = red.reshape((resolution,))
+
+            if "green" in features:
+                training_data[start_index:end_index,get_index("green")] = green.reshape((resolution,))
+
+            if "blue" in features:
+                training_data[start_index:end_index,get_index("blue")] = blue.reshape((resolution,))
+
+            if "hue" in features:
+                print "adding hue at " + str(get_index("hue"))
+                training_data[start_index:end_index,get_index("hue")] = hue.reshape((resolution,))
+
+            if "sat" in features:
+                print "adding sat at " + str(get_index("sat"))
+                training_data[start_index:end_index,get_index("sat")] = sat.reshape((resolution,))
+
+            if "value" in features:
+                training_data[start_index:end_index,get_index("value")] = value.reshape((resolution,))
+
+            if "L" in features:
+                training_data[start_index:end_index,get_index("L")] = l.reshape((resolution,))
+
+            if "a" in features:
+                training_data[start_index:end_index,get_index("a")] = a.reshape((resolution,))
+
+            if "b" in features:
+                training_data[start_index:end_index,get_index("b")] = b.reshape((resolution,))
+
+            if "o1" in features:
+                print "adding o1 at " + str(get_index("o1"))
+                training_data[start_index:end_index,get_index("o1")] = o1.reshape((resolution,))
+
+            if "o2" in features:
+                print "adding o2 at " + str(get_index("o2"))
+                training_data[start_index:end_index,get_index("o2")] = o2.reshape((resolution,))
+
+            if "gabor" in features:
+                training_data[start_index:end_index,get_index("gabor")] = gabor_vals.reshape((resolution,))
+
 
         return training_data
 
@@ -358,28 +418,113 @@ class Trainer(object):
         predictions = np.zeros(shape=(image.shape[0],image.shape[1],3),dtype=np.uint8)
 
         cs = ColorSpace(image=image)
+        red = cs.get_red()
+        green = cs.get_green()
+        blue = cs.get_blue()
         hue = cs.get_hue()
         sat = cs.get_sat()
+        value = cs.get_value()
         o1 = cs.get_o1()
         o2 = cs.get_o2()
+        gabor = cs.get_gabor()
+        l = cs.get_cielab_l()
+        a = cs.get_cielab_a()
+        b = cs.get_cielab_b()
 
         #filters = build_filters()
         #filters = np.asarray(filters)
         #image_gray = cv2.cvtColor(image, cv2.cv.CV_BGR2GRAY)
         #gabor_vals = process(image_gray, filters)
 
-        if self.num_dims:
-            red = image[:,:,0]
-            green = image[:,:,1]
-            blue = image[:,:,2]
+        resolution = image.shape[0]*image.shape[1]
+        eval_data = np.zeros(shape=(resolution, self.num_dims), dtype=np.float32)
+
+        if "red" in features:
+            eval_data[:,get_index("red")] = red.reshape((resolution,))
+
+        if "green" in features:
+            eval_data[:,get_index("green")] = green.reshape((resolution,))
+
+        if "blue" in features:
+            eval_data[:,get_index("blue")] = blue.reshape((resolution,))
+
+        if "hue" in features:
+            eval_data[:,get_index("hue")] = hue.reshape((resolution,))
+
+        if "sat" in features:
+            eval_data[:,get_index("sat")] = sat.reshape((resolution,))
+
+        if "value" in features:
+            eval_data[:,get_index("value")] = value.reshape((resolution,))
+
+        if "L" in features:
+            eval_data[:,get_index("L")] = l.reshape((resolution,))
+
+        if "a" in features:
+            eval_data[:,get_index("a")] = a.reshape((resolution,))
+
+        if "b" in features:
+            eval_data[:,get_index("b")] = b.reshape((resolution,))
+
+        if "o1" in features:
+            eval_data[:,get_index("o1")] = o1.reshape((resolution,))
+
+        if "o2" in features:
+            eval_data[:,get_index("o2")] = o2.reshape((resolution,))
+
+        if "gabor" in features:
+            eval_data[:,get_index("gabor")] = gabor.reshape((resolution,))
 
         for r in range(image.shape[0]):
             for c in range(image.shape[1]):
+
+                idx = r * image.shape[1] + c
+                data = eval_data[idx,:]
+
+                """
                 data = np.zeros(shape=(self.num_dims,),dtype=np.float32)
+
+                if "red" in features >= 0:
+                    data[get_index("red")] = red[r,c]
+
+                if "green" in features >= 0:
+                    data[get_index("green")] = green[r,c]
+
+                if "blue" in features >= 0:
+                    data[get_index("blue")] = blue[r,c]
+
+                if "hue" in features >= 0:
+                    data[get_index("hue")] = hue[r,c]
+
+                if "sat" in features >= 0:
+                    data[get_index("sat")] = sat[r,c]
+
+                if "value" in features >= 0:
+                    data[get_index("value")] = value[r,c]
+
+                if "L" in features >= 0:
+                    data[get_index("L")] = l[r,c]
+
+                if "a" in features >= 0:
+                    data[get_index("a")] = a[r,c]
+
+                if "b" in features >= 0:
+                    data[get_index("b")] = b[r,c]
+
+                if "o1" in features >= 0:
+                    data[get_index("o1")] = o1[r,c]
+
+                if "o2" in features >= 0:
+                    data[get_index("o2")] = o2[r,c]
+
+                if "gabor" in features >= 0:
+                    data[get_index("gabor")] = gabor[r,c]
+
 
                 #if fgmask[r,c] == 0:
                 #    predictions[r,c] = [0,0,0]
-
+                """
+                """
                 if self.num_dims == 3:
                     data[0] = float(red[r,c])
                     data[1] = float(green[r,c])
@@ -397,6 +542,7 @@ class Trainer(object):
                     data[5] = float(green[r,c])
                     data[6] = float(blue[r,c])
 
+                """
                 #data[self.num_dims] = float(gabor_vals[r,c])
 
                 pred = self.model.model.predict( data )
