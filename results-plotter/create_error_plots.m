@@ -81,23 +81,23 @@ fprintf(f,'Comparison Mean roll error %s : %f\n', comparison_method_name, mean(r
 fprintf(f,'Comparison Std. Dev. roll error %s : %f\n', comparison_method_name, std(roll_error_comparison));
 fprintf(f,'\n');
 
-fprintf(f,'Method Mean pitch error %s : %f\n', estimates_method_name, mean(roll_error));
-fprintf(f,'Method Std. Dev. pitch error %s : %f\n', estimates_method_name, std(roll_error));
-fprintf(f,'ComparisonMean pitch error %s : %f\n', comparison_method_name, mean(roll_error_comparison));
-fprintf(f,'ComparisonStd. Dev. pitch error %s : %f\n', comparison_method_name, std(roll_error_comparison));
+fprintf(f,'Method Mean pitch error %s : %f\n', estimates_method_name, mean(pitch_error));
+fprintf(f,'Method Std. Dev. pitch error %s : %f\n', estimates_method_name, std(pitch_error));
+fprintf(f,'Comparison Mean pitch error %s : %f\n', comparison_method_name, mean(pitch_error_comparison));
+fprintf(f,'Comparison Std. Dev. pitch error %s : %f\n', comparison_method_name, std(pitch_error_comparison));
 fprintf(f,'\n');
 
-fprintf(f,'Method Mean yaw error %s : %f\n', estimates_method_name, mean(roll_error));
-fprintf(f,'Method Std. Dev. yaw error %s : %f\n', estimates_method_name, std(roll_error));
-fprintf(f,'Comparison Mean yaw error %s : %f\n', comparison_method_name, mean(roll_error_comparison));
-fprintf(f,'Comparison Std. Dev. yaw error %s : %f\n', comparison_method_name, std(roll_error_comparison));
+fprintf(f,'Method Mean yaw error %s : %f\n', estimates_method_name, mean(yaw_error));
+fprintf(f,'Method Std. Dev. yaw error %s : %f\n', estimates_method_name, std(yaw_error));
+fprintf(f,'Comparison Mean yaw error %s : %f\n', comparison_method_name, mean(yaw_error_comparison));
+fprintf(f,'Comparison Std. Dev. yaw error %s : %f\n', comparison_method_name, std(yaw_error_comparison));
 fprintf(f,'\n');
 fclose(f);
 
 plot_vals({t_error,t_error_comparison}, 'Translation error', 'Distance (mm)', {estimates_method_name, comparison_method_name}, strcat(save_dir,'/translation_error.pdf'));
 make_box_plot([t_error;t_error_comparison], 'Translation error', 'Distance (mm)', {{'',''}, {estimates_method_name, comparison_method_name}}, strcat(save_dir,'/translation_error_box.pdf'));
 
-plot_vals({r_error,r_error_comparison}, 'Rotation error', 'Distance (radians)', {strcat('Rotation error ',estimates_method_name), strcat('Rotation error ', comparison_method_name)}, strcat(save_dir,'/rotation_error.pdf'));
+plot_vals({r_error,r_error_comparison}, 'Rotation error', 'Distance (radians)', {estimates_method_name, comparison_method_name}, strcat(save_dir,'/rotation_error.pdf'));
 make_box_plot([r_error;r_error_comparison], 'Rotation error', 'Distance (rads)', {{'',''}, {estimates_method_name, comparison_method_name}}, strcat(save_dir,'/rotation_error_box.pdf'));
 
 end

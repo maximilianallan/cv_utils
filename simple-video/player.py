@@ -11,6 +11,7 @@ class VideoPlayer:
       self.index = -1
       self.MAX_VAL = 100
       self.video_file = cv2.VideoCapture(video_file)
+      self.count = 0
       if not self.video_file.isOpened():
         raise Exception("Error, could not open video file\n")
 
@@ -56,7 +57,9 @@ class VideoPlayer:
       if frame[0] is False:
         print "Done"
         return False
-
+      
+      self.count+=1
+      print "Playing frame {0}".format(self.count)
       frame = frame[1]
 
       self.add_new(frame)

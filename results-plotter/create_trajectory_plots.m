@@ -49,8 +49,8 @@ plot_vals({x_estimates,x_comparison,x_ground_truth}, 'Translation x', 'Position 
 plot_vals({y_estimates,y_comparison,y_ground_truth}, 'Translation y', 'Position (mm)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_y.pdf'));
 plot_vals({z_estimates,z_comparison,z_ground_truth}, 'Translation z', 'Position (mm)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_z.pdf'));
 
-plot_vals({roll_estimates,roll_comparison,roll_ground_truth}, 'Rotation x', 'Angle (rads)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_xrotation.pdf'));
-plot_vals({pitch_estimates,pitch_comparison,pitch_ground_truth}, 'Rotation y', 'Angle (rads)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_yrotation.pdf'));
-plot_vals({yaw_estimates,yaw_comparison,yaw_ground_truth}, 'Rotation z', 'Angle (rads)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_zrotation.pdf'));
+plot_vals({roll_estimates,roll_comparison,roll_ground_truth}, 'Rotation x', 'Angle (rads)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_x_rotation.pdf'), [0, 4]);
+plot_vals({pitch_estimates,pitch_comparison,pitch_ground_truth}, 'Rotation y', 'Angle (rads)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_y_rotation.pdf'), [0, 4]);
+plot_vals({yaw_estimates,yaw_comparison,yaw_ground_truth}, 'Rotation z', 'Angle (rads)', {estimates_method_name, comparison_method_name,'Ground Truth'}, strcat(save_dir,'/trajectory_z_rotation.pdf'), [0, 4]);
 
 end

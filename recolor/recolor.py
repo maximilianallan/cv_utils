@@ -32,6 +32,7 @@ class ColorSpace:
           self.image = self.image.astype(np.float32)
           self.image *= 1.0/255
         
+        
           
         try:    
             (self.height,self.width,self.chans) = self.image.shape
@@ -65,6 +66,8 @@ class ColorSpace:
             i = self.get_blue()
         elif target_colorspace == "gabor":
             i = self.get_gabor()
+        elif target_colorspace == "gray":
+            i = self.get_gray()
         elif target_colorspace == "all":
             i = np.ndarray(shape=(self.image.shape[0],self.image.shape[1],4), dtype=np.float32)
             i[:,:,0] = self.get_hue()
@@ -77,8 +80,15 @@ class ColorSpace:
         if apply_colormap == False:
           return i
         else:
-          return cv2.applyColorMap(i,COLORMAP_HSV)
+          return cv2.applyColorMap(i,cv2.COLORMAP_JET)
 
+    def get_gray(self):
+        gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        if self.image.dtype == np.float32:
+          return gray.astype(np.float32)
+        else:
+          return cv2.normalize(gray, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX).astype(np.uint8)
+          
     def get_red(self):
         return self.image[:,:,2]
 
@@ -94,7 +104,7 @@ class ColorSpace:
         if self.image.dtype == np.float32:
           return hsv[:,:,0].astype(np.float32)
         else:
-          return hsv[:,:,0]
+          return cv2.normalize(hsv[:,:,0], alpha=0, beta=255, norm_type=cv2.NORM_MINMAX).astype(np.uint8)#hsv[:,:,0]
 
     def get_sat(self):
     
@@ -120,10 +130,13 @@ class ColorSpace:
         if self.image.dtype == np.float32:
           return o1
         else:
+          """
           from sklearn.preprocessing import MinMaxScaler
           m = MinMaxScaler(feature_range=(0,255))
           m.fit(o1)
           return m.transform(o1).astype(np.uint8)
+          """
+          return cv2.normalize(o1, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX).astype(np.uint8)           
           
           
         #return np.reshape(o2,(self.height,self.width)).astype(np.uint8,copy=False) - THIS IS BAD AS THE VALUES CANNOT MAP To 0-255
@@ -135,10 +148,12 @@ class ColorSpace:
         if self.image.dtype == np.float32:
           return o2
         else:
-          from sklearn.preprocessing import MinMaxScaler
+          """from sklearn.preprocessing import MinMaxScaler
           m = MinMaxScaler(feature_range=(0,255))
           m.fit(o2)
           return m.transform(o2).astype(np.uint8)
+          """
+          return cv2.normalize(o2, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX).astype(np.uint8)           
           
     def bgr2o1(self,x):
 
@@ -169,10 +184,12 @@ class ColorSpace:
         if self.image.dtype == np.float32:
           return gabor_vals.astype(np.float32, casting='safe')
         else:
-           from sklearn.preprocessing import MinMaxScaler
-           m = MinMaxScaler(feature_range=(0,255))
-           m.fit(gabor_vals)
-           return m.transform(gabor_vals).astype(np.uint8)
+           #from sklearn.preprocessing import MinMaxScaler
+           #m = MinMaxScaler(feature_range=(0,255))
+           #m.fit(gabor_vals)
+           #return m.transform(gabor_vals).astype(np.uint8)
+           #(minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(gabor_vals)
+           return cv2.normalize(gabor_vals, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX).astype(np.uint8)           
           
   
     def get_cielab_l(self):
@@ -189,7 +206,7 @@ class ColorSpace:
         if self.image.dtype == np.float32:
           return cie[:,:,1].astype(np.float32)
         else:
-          return cie[:,:,1]
+          return cv2.normalize(cie[:,:,1], alpha=0, beta=255, norm_type=cv2.NORM_MINMAX).astype(np.uint8)
 
     def get_cielab_b(self):
 
@@ -197,7 +214,7 @@ class ColorSpace:
         if self.image.dtype == np.float32:
           return cie[:,:,2].astype(np.float32)
         else:
-          return cie[:,:,2]
+          return cv2.normalize(cie[:,:,2], alpha=0, beta=255, norm_type=cv2.NORM_MINMAX).astype(np.uint8)
 
 if __name__ == '__main__':
 
@@ -213,6 +230,6 @@ if __name__ == '__main__':
     csp = ColorSpace(image_path)
     i = csp.process(colorspace)
  
-    hm = applyColorMap(i,cv2.COLORMAP_HSV)
+    hm = applyColorMap(i,cv2.COLORMAP_JET)
     imwrite(colorspace+".png",hm)
     

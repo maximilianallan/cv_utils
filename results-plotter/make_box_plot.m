@@ -19,12 +19,13 @@ ylabel(y_axis_label);
 %  legend(legend_labels);
 %end
 
-set(gca,'FontSize',26);
-set(findall(gcf,'type','text'),'FontSize',26);
+set(gca,'FontSize',15);
+set(findall(gcf,'type','text'),'FontSize',15);
 
 %moveLabel('x',20, gcf, gca);
 
 saveas(f,save_path);
+close(f);
 
 end
 

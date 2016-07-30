@@ -11,8 +11,8 @@ from recolor import ColorSpace
 import gc
 
 all_features = ["red","green","blue","hue","sat","value","L","a","b","o1","o2","gabor"]
-#features = ["red","a","b"]
-features = ["hue","sat","o1","o2"]
+features = ["red","a","o1", "gabor"]
+#features = ["hue","sat","o1","o2"]
 
 def get_index(feature):
     return features.index(feature)
@@ -59,7 +59,7 @@ class RandomForest(Model):
     self.name = "RF"
     
   def setup_params(self):
-    self.params = dict(term_crit=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER ,4,0.001) )
+    self.params = dict(term_crit=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER , 5 , 0.001) )
   
 class BoostedClassifier(Model):
   def __init__(self):
@@ -214,12 +214,15 @@ class Trainer(object):
             b = cs.get_cielab_b()
 
             if "red" in features:
+                print "adding red at " + str(get_index("red"))            
                 training_data[start_index:end_index,get_index("red")] = red.reshape((resolution,))
 
             if "green" in features:
+                print "adding green at " + str(get_index("green"))            
                 training_data[start_index:end_index,get_index("green")] = green.reshape((resolution,))
 
             if "blue" in features:
+                print "adding blue at " + str(get_index("blue"))            
                 training_data[start_index:end_index,get_index("blue")] = blue.reshape((resolution,))
 
             if "hue" in features:
@@ -231,15 +234,19 @@ class Trainer(object):
                 training_data[start_index:end_index,get_index("sat")] = sat.reshape((resolution,))
 
             if "value" in features:
+                print "adding value at " + str(get_index("value"))
                 training_data[start_index:end_index,get_index("value")] = value.reshape((resolution,))
 
             if "L" in features:
+                print "adding L at " + str(get_index("L"))            
                 training_data[start_index:end_index,get_index("L")] = l.reshape((resolution,))
 
             if "a" in features:
+                print "adding a at " + str(get_index("a"))            
                 training_data[start_index:end_index,get_index("a")] = a.reshape((resolution,))
 
             if "b" in features:
+                print "adding b at " + str(get_index("b"))            
                 training_data[start_index:end_index,get_index("b")] = b.reshape((resolution,))
 
             if "o1" in features:
@@ -251,7 +258,8 @@ class Trainer(object):
                 training_data[start_index:end_index,get_index("o2")] = o2.reshape((resolution,))
 
             if "gabor" in features:
-                training_data[start_index:end_index,get_index("gabor")] = gabor_vals.reshape((resolution,))
+                print "adding gabor at " + str(get_index("gabor"))            
+                training_data[start_index:end_index,get_index("gabor")] = gabor.reshape((resolution,))
 
 
         return training_data
@@ -337,7 +345,7 @@ class Trainer(object):
 
         return new_training_data, new_labels
 
-    def rebalance_classes(self, training_data, labels):
+    def rebalance_classes_2class(self, training_data, labels):
     
         positive_indexes = [ i for i in range(self.num_examples) if labels[i] > 0]
         negative_indexes = list(set(range(self.num_examples)) - set(positive_indexes))
@@ -362,6 +370,32 @@ class Trainer(object):
         new_labels = labels[positive_indexes + negative_indexes]
         return new_training_data, new_labels
         
+    def rebalance_classes_multiclass(self, training_data, labels):
+    
+        all_indexes = set(labels)
+        index_vals = {}
+        from random import shuffle
+        
+        for p in all_indexes:
+            index_vals[p] = [ i for i in range(self.num_examples) if labels[i] == p]
+            shuffle(index_vals[p])
+        
+        len_shortest = min([len(index_vals[l]) for l in index_vals])
+         
+        
+        for p in index_vals:
+          
+            index_vals[p] = index_vals[p][:len_shortest]
+            
+        all_indexes = []
+        for p in index_vals:
+          
+            all_indexes += index_vals[p] 
+            
+        new_training_data = training_data[all_indexes,:]
+        new_labels = labels[all_indexes]
+        return new_training_data, new_labels    
+        
     def train(self, save_path = None):
 
         print("")
@@ -372,7 +406,7 @@ class Trainer(object):
         self.labels = self.convert_labels()
         print("done.")
 
-        self.training_data, self.labels = self.rebalance_classes(self.training_data, self.labels)
+        self.training_data, self.labels = self.rebalance_classes_multiclass(self.training_data, self.labels)
         #self.training_data, self.labels = self.extract_positives(self.training_data, self.labels)
 
         self.model.setup_params()

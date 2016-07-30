@@ -14,18 +14,22 @@ if __name__ == '__main__':
 
 	cv2.namedWindow("output")
 
-	play = True
+	play = False
+	first = True
 
 	count = 0
 
 	while True:
 
-		if play == True:
-
+		if play == True or first == True:
+      
+			first = False
+      
 			if bpf.index + 1 == len(bpf.frames):
 
 				if not bpf.load_new():
 					break
+
 
 			else:
 				bpf.index += 1
@@ -35,22 +39,14 @@ if __name__ == '__main__':
 
 		key = cv2.waitKey(8)
 
-		print play
-
-		if key != -1:
-			print key
-
 		if key & 255 == ord(' '):
-			print "Stopping play"
 			play = not play
 
 		if key == 37 or key == 2424832:
-			print "Rwingin"
 			play = False
 			bpf.rewind()
 
 		if key == 39 or key == 2555904:
-			print "fast forward"
 			play = False
 			if not bpf.forward():
 				break

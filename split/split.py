@@ -10,6 +10,9 @@ def split(frame):
   except:
     return frame[:,0:width],frame[:,width:width*2] #single channel
  
+def process_filename(filename, append_name):
+  filename,ext = os.path.splitext(filename)
+  return filename + "_" + append_name + ext
 
 def split_video(infile):
 
@@ -22,10 +25,12 @@ def split_video(infile):
   size = (int(v.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)/2),int(v.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)))
   del v
 
+  left_output = process_filename(infile, "left")
   #-ss 00:00:20 -t 00:01:40  10M
-  left_cmd = "ffmpeg -i {input} -vcodec h264 -filter:v crop={width}:{height}:{left_x_start}:{left_y_start} -crf 18 {output}".format(input=infile,width=size[0],height=size[1],left_x_start=0,left_y_start=0,output="left.avi")
+  left_cmd = "ffmpeg -i {input} -vcodec h264 -filter:v crop={width}:{height}:{left_x_start}:{left_y_start} -crf 18 {output}".format(input=infile,width=size[0],height=size[1],left_x_start=0,left_y_start=0,output=left_output)
  
-  right_cmd = "ffmpeg -i {input} -filter:v crop={width}:{height}:{right_x_start}:{right_y_start} -vcodec h264 -crf 18 {output}".format(input=infile,width=size[0],height=size[1],right_x_start=size[0],right_y_start=0,output="right.avi")
+  right_output = process_filename(infile, "right")
+  right_cmd = "ffmpeg -i {input} -filter:v crop={width}:{height}:{right_x_start}:{right_y_start} -vcodec h264 -crf 18 {output}".format(input=infile,width=size[0],height=size[1],right_x_start=size[0],right_y_start=0,output=right_output)
 
   p = subprocess.Popen(left_cmd)
   ret_code = p.wait()

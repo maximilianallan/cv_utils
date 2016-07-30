@@ -20,8 +20,6 @@ title(fig_title);
 xlabel('Frame no.');
 ylabel(y_axis_label);
 
-xlim([0 length(vals{1})]);
-
 %if nargin == 6
 %    ylim(min_max_y_vals);
 %end
@@ -30,7 +28,7 @@ xlim([0 length(vals{1})]);
 %if (strcmp(fig_title,'Translation x'))&& num_plots > 1
 %  legend(legend_labels,'Location','southwest');    
 %elseif num_plots > 1
-%legend(legend_labels,'Location','northwest');
+legend(legend_labels,'Location','northwest');
 %end
 
 %set(gca,'FontSize',15);
@@ -40,8 +38,6 @@ xlim([0 length(vals{1})]);
 set(gca,'FontSize',20);
 set(findall(gcf,'type','text'),'FontSize',20);
 %saveas(f,save_path);
-
-export_fig(save_path, '-transparent');
 
 close(f);
 
